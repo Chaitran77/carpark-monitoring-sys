@@ -1,6 +1,10 @@
 {
     "compilerOptions": {
-        "target": "ES3",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "target": "ES6",
         "watch": true
     }
 }
+// https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript
