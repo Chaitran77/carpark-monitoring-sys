@@ -1,0 +1,23 @@
+{
+  "name": "carpark-monitoring-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc index.ts",
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chaitran77/carpark-monitoring-sys.git"
+  },
+  "author": "Kiran Patel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chaitran77/carpark-monitoring-sys/issues"
+  },
+  "homepage": "https://github.com/Chaitran77/carpark-monitoring-sys#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.16"
+  }
+}
