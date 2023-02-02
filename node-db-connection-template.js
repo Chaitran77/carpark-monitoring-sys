@@ -17,4 +17,5 @@ getClient = async () => {
 };
 
 client = await getClient();
-await client.query("SELECT * FROM \"Tenant\""); // referencing mixed-case table names https://stackoverflow.com/a/695312/7169383
+const log_data = await client.query("SELECT * FROM \"Log\""); // referencing mixed-case table names https://stackoverflow.com/a/695312/7169383
+console.log(log_data.rows);
