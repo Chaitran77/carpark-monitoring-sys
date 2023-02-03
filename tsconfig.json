@@ -1,10 +1,15 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "target": "es2017"17",
-        "watch": true
-    }
+	"compilerOptions": {
+		"module": "CommonJS",
+		"target": "es6",
+		// "esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"watch": true
+	},	
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }
-// https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript

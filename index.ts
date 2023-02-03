@@ -1,13 +1,16 @@
-// import * as express from 'express'
-import express from "express"
+
 
 const { Client } = require('pg');
 const dotenv = require("dotenv").config();
+import server from "./server";
+
+const serverListenPort = 8000;
 
 // https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js
 // https://medium.com/bb-tutorials-and-thoughts/how-to-build-nodejs-rest-api-with-express-and-postgresql-typescript-version-121b5a11c9a6
 
-dotenv.config()
+// https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript
+
 
 const getClient = async () => {
   const client = new Client({
@@ -22,9 +25,12 @@ const getClient = async () => {
   return client;
 };
 
-const dbClient = await getClient();
-const log_data = await dbClient.query("SELECT * FROM \"Log\""); // referencing mixed-case table names https://stackoverflow.com/a/695312/7169383
-console.log(log_data.rows);
+(async () => {
+	const dbClient = await getClient();
+	const log_data = await dbClient.query("SELECT * FROM \"Log\""); // referencing mixed-case table names https://stackoverflow.com/a/695312/7169383
+	console.log(log_data.rows);
+	await dbClient.end();
+})
 
 class Tenant {
     public TenantID;
@@ -37,7 +43,7 @@ class Tenant {
         this.Surname = Surname;
     }
 }
-
+ 
 class Vehicle {
     public VehicleID;
     public Numberplate;
@@ -82,7 +88,7 @@ class Camera {
     public CarparkID;
 
     constructor() {
-        
+
     }
 }
 
@@ -91,26 +97,8 @@ class Carpark {
 }
 
 
-class App {
-    public express
-    constructor() {
-        this.express = express()
-        this.loadRoutes()
-    } 
-
-    private loadRoutes() : void {
-        const router = express.Router()
-        router.get('/', (req, res) => {
-            res.json({
-                'message': 'Hello World!'
-            })
-            this.express.use('/', router);
-        })
-    }
-}
-
-export default new App().express;
-
-
- 
-// https://medium.com/@pmhegdek/oop-in-typescript-express-server-d9368b97740e
+server.listen(serverListenPort, (err) => {
+	if (err) return console.log(err);
+	return console.log("Server running on port ", serverListenPort);
+	
+})
