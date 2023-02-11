@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS public."Account"
     "Username" character varying(20) NOT NULL,
     "PasswordHash" character varying(256) NOT NULL,
     "Role" integer NOT NULL,
-    "AdministratorPrivileges" boolean NOT NULL,
-    "Deletable" boolean NOT NULL,
+    "DeleteTable" boolean NOT NULL,
     "LastLogin" timestamp without time zone,
     PRIMARY KEY ("AccountID")
 );
