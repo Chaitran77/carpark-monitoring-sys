@@ -4,22 +4,22 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npx tsc",
-    "start": "node --inspect=0.0.0.0:9229 dist/index.js",
-    "test": "node --inspect=0.0.0.0:9229 dist/index.js"
+	"build": "npx tsc",
+	"start": "node --inspect=0.0.0.0:9229 dist/index.js",
+	"test": "node --inspect=0.0.0.0:9229 dist/index.js"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Chaitran77/carpark-monitoring-sys.git"
+	"type": "git",
+	"url": "git+https://github.com/Chaitran77/carpark-monitoring-sys.git"
   },
   "author": "Kiran Patel",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Chaitran77/carpark-monitoring-sys/issues"
+	"url": "https://github.com/Chaitran77/carpark-monitoring-sys/issues"
   },
   "homepage": "https://github.com/Chaitran77/carpark-monitoring-sys#readme",
   "devDependencies": {
-    "@types/express": "^4.17.16",
-    "typescript": "^4.9.5"
+	"@types/express": "^4.17.16",
+	"typescript": "^4.9.5"
   }
 }

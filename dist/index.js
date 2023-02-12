@@ -38,12 +38,15 @@ const getClient = () => __awaiter(void 0, void 0, void 0, function* () {
 // })
 class Main {
     constructor() {
+        this.lastNumberplate = "";
         this.dbClient = () => __awaiter(this, void 0, void 0, function* () {
             return yield getClient();
         });
         this.makeDBQuery("SELECT * FROM \"Log\"").then((result) => {
             console.log(result.rows);
         });
+    }
+    handleNumberplateEvent() {
     }
     makeDBQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -7,14 +7,17 @@ class Server {
         this.loadRoutes();
     }
     loadRoutes() {
-        this.express.use(express.json({ limit: '2mb' }));
         // this.express.get('/', (req, res) => {
         //     res.json({
         //         'message': 'Hello World!'
         //     })
         // })
-        this.express.post('/', (req, res) => {
-            console.log(req.body);
+        this.express.use(express.json({ limit: '2mb' }));
+        // this.express.use("/", (req, res, err) => { 
+        //     console.log(req.body);
+        // })
+        this.express.post('/NotificationInfo/TollgateInfo', (req, res) => {
+            console.log(req);
         });
     }
 }

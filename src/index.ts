@@ -15,12 +15,12 @@ const serverListenPort = 8000;
 // connect to local Postgresql database using credentials in the .env file
 const getClient = async () => {
   const client = new Client({
-    host: process.env.PG_HOST,
-    port: process.env.PG_PORT,
-    user: process.env.PG_USER,
-    password: process.env.PG_PASSWORD,
-    database: process.env.PG_DATABASE,
-    ssl: false,
+	host: process.env.PG_HOST,
+	port: process.env.PG_PORT,
+	user: process.env.PG_USER,
+	password: process.env.PG_PASSWORD,
+	database: process.env.PG_DATABASE,
+	ssl: false,
   });
   await client.connect();
   return client;
@@ -36,23 +36,28 @@ const getClient = async () => {
 
 class Main {
 
-    private dbClient: typeof Client;
+	private lastNumberplate:string = "";
+	private dbClient: typeof Client;
 
-    constructor() {
-        this.dbClient = async () => {
-            return await getClient();
-        }
+	constructor() {
+		this.dbClient = async () => {
+			return await getClient();
+		}
 
-        this.makeDBQuery("SELECT * FROM \"Log\"").then((result:pg.QueryResult) => {
-          console.log(result.rows);
-        })
-    }
+		this.makeDBQuery("SELECT * FROM \"Log\"").then((result:pg.QueryResult) => {
+		  console.log(result.rows);
+		})
+	}
 
-    public async makeDBQuery(query:string):Promise<any> {
-      const dataPromise = this.dbClient.query(query);
-      this.dbClient.end()
-      return dataPromise;
-    }
+	public handleNumberplateEvent():void {
+
+	}
+
+	private async makeDBQuery(query:string):Promise<any> {
+	  const dataPromise = this.dbClient.query(query);
+	  this.dbClient.end()
+	  return dataPromise;
+	}
 
 }
 
