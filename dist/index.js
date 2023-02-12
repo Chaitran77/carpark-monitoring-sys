@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const { Client } = require('pg');
-const dotenv = require("dotenv").config();
 const Server_1 = require("./Server");
+require("dotenv").config();
 const serverListenPort = 8000;
 // https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js
 // https://medium.com/bb-tutorials-and-thoughts/how-to-build-nodejs-rest-api-with-express-and-postgresql-typescript-version-121b5a11c9a6
@@ -40,6 +40,16 @@ class Main {
     constructor() {
         this.dbClient = () => __awaiter(this, void 0, void 0, function* () {
             return yield getClient();
+        });
+        this.makeDBQuery("SELECT * FROM \"Log\"").then((result) => {
+            console.log(result.rows);
+        });
+    }
+    makeDBQuery(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dataPromise = this.dbClient.query(query);
+            this.dbClient.end();
+            return dataPromise;
         });
     }
 }

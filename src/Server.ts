@@ -2,31 +2,26 @@ import * as express from 'express';
 
 class Server {
     public express
+
     constructor() {
         this.express = express();
         this.loadRoutes()
-    } 
+    }
 
     private loadRoutes() : void {
 
-        this.express.use(express.json( { limit: '2mb' }));
-
-        this.express.use('/', function (req, res, next) {
-            console.log(req.baseUrl, req.originalUrl);
-            console.log(req.body);
-        })
         
-        // const router = express.Router()
-        // router.get('/', (req, res) => {
+        
+        // this.express.get('/', (req, res) => {
         //     res.json({
-        //         'message': 'Hello World!'
+            //         'message': 'Hello World!'
         //     })
-        //     this.express.use('/', router);
         // })
 
-        // router.post('', (req, res) => {
-        //     console.log(req); 
-        // })
+        this.express.post('/', (req: express.Request, res: express.Response) => {
+            console.log(req.body); 
+        })
+        this.express.use(express.json( { limit: '2mb' }));
     }
 }
 

@@ -8,20 +8,14 @@ class Server {
     }
     loadRoutes() {
         this.express.use(express.json({ limit: '2mb' }));
-        this.express.use('/', function (req, res, next) {
-            console.log(req.baseUrl, req.originalUrl);
-            console.log(req.body);
-        });
-        // const router = express.Router()
-        // router.get('/', (req, res) => {
+        // this.express.get('/', (req, res) => {
         //     res.json({
         //         'message': 'Hello World!'
         //     })
-        //     this.express.use('/', router);
         // })
-        // router.post('', (req, res) => {
-        //     console.log(req); 
-        // })
+        this.express.post('/', (req, res) => {
+            console.log(req.body);
+        });
     }
 }
 exports.default = new Server().express;

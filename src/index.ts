@@ -1,8 +1,9 @@
 
 
 const { Client } = require('pg');
-const dotenv = require("dotenv").config();
+import * as pg from "pg";
 import server from "./Server";
+require("dotenv").config();
 
 const serverListenPort = 8000;
 
@@ -35,12 +36,22 @@ const getClient = async () => {
 
 class Main {
 
-    private dbClient: Object;
+    private dbClient: typeof Client;
 
     constructor() {
         this.dbClient = async () => {
             return await getClient();
         }
+
+        this.makeDBQuery("SELECT * FROM \"Log\"").then((result:pg.QueryResult) => {
+          console.log(result.rows);
+        })
+    }
+
+    public async makeDBQuery(query:string):Promise<any> {
+      const dataPromise = this.dbClient.query(query);
+      this.dbClient.end()
+      return dataPromise;
     }
 
 }
