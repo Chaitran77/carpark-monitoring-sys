@@ -9,16 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const { Client } = require('pg');
-const Server_1 = require("./Server");
+const express = require("express");
+// import router from "./Server";
+const { Pool } = require("pg");
 require("dotenv").config();
-const serverListenPort = 8000;
-// https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js
-// https://medium.com/bb-tutorials-and-thoughts/how-to-build-nodejs-rest-api-with-express-and-postgresql-typescript-version-121b5a11c9a6
-// https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript
 // connect to local Postgresql database using credentials in the .env file
-const getClient = () => __awaiter(void 0, void 0, void 0, function* () {
-    const client = new Client({
+function createPool() {
+    const pool = new Pool({
         host: process.env.PG_HOST,
         port: process.env.PG_PORT,
         user: process.env.PG_USER,
@@ -26,9 +23,129 @@ const getClient = () => __awaiter(void 0, void 0, void 0, function* () {
         database: process.env.PG_DATABASE,
         ssl: false,
     });
-    yield client.connect();
-    return client;
+    return pool;
+}
+;
+class Main {
+    constructor() {
+        this.previousNumberplate = "";
+        this.serverListenPort = 8000;
+        this.server = express();
+        this.loadRoutes();
+        this.httpServer = this.server.listen(this.serverListenPort, () => { console.log("server listening"); });
+        this.dbPool = createPool();
+        this.makeDBQuery("SELECT * FROM \"Log\"").then((result) => {
+            console.log(result.rows);
+        });
+    }
+    handleNumberplateEvent(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const plate = request.body["Picture"].Plate.PlateNumber;
+            console.log(plate, request.body["Picture"].SnapInfo.Direction);
+            // if (plate == this.previousNumberplate) {return}
+            if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
+                // vehicle is exiting, no need to check numberplate
+                console.log("REVERSE");
+                const data = yield this.makeDBQuery(`SELECT * FROM "Vehicle" WHEkuRE numberplate = '${plate}';`);
+                console.log(data.rows);
+                // do stuff
+                // .then((result) => {
+            }
+            else if (request.body["Picture"].SnapInfo.Direction == "Obverse") {
+                // vehicle is entering the carpark
+                console.log("OBVERSE");
+                // try {
+                // 	const data = await this.dbPool.query(`SELECT * FROM "Vehicle" WHERE numberplate = '${plate}';`)
+                // 	// do other stuff
+                // 	this.replySuccess(response);
+                // } catch (err: any) {
+                // 	this.handleQueryError(err, response)
+                // }
+            }
+            else {
+                console.log("UNKNOWN VEHICLE DIRECTION " + request.body["Picture"].SnapInfo.Direction);
+            }
+        });
+    }
+    generateInsertQuery(table, parameters) {
+        const keys = Object.keys(parameters);
+        const values = Object.values(parameters);
+        const query = `INSERT INTO ${table} (${keys}) VALUES (${values})`;
+        return query;
+    }
+    editSpaceCounter() {
+    }
+    makeDBQuery(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.dbPool.query(query);
+            return result;
+            // const dataPromise = this.dbPool.query(query);
+            // return dataPromise;
+        });
+    }
+    handleQueryError(err, res) {
+        // bad query so send status 400 with error message
+        console.log("Query error");
+        res.status(400)
+            .send("Query failed with error: " + err.message)
+            .end();
+    }
+    replySuccess(res) {
+        res.status(200)
+            .end();
+    }
+    loadRoutes() {
+        this.server.use(express.json({ limit: "2mb" }));
+        this.server.post("/NotificationInfo/TollgateInfo", (req, res) => {
+            try {
+                this.handleNumberplateEvent(req, res);
+                this.replySuccess(res);
+            }
+            catch (error) {
+                this.handleQueryError(error, res);
+            }
+        });
+        this.server.post("/NotificationInfo/KeepAlive", (req, res) => {
+            console.log(req);
+            res.send({ "Message": "Success", "Result": true, "RspTime": "" });
+            res.status(200);
+            res.end();
+        });
+        this.server.post("/insert/:table/", (req, res) => __awaiter(this, void 0, void 0, function* () {
+            // for tables other than Log from receptionUI, not for numberplates.
+            console.log(this.generateInsertQuery(req.params.table, req.body));
+            res.send("Insert request completed successfully");
+            res.status(200);
+            res.end();
+        }));
+        this.server.post("/update/:table/", (req, res) => __awaiter(this, void 0, void 0, function* () {
+        }));
+    }
+    shutdown() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.httpServer.close();
+            yield this.dbPool.end;
+            process.exit(0);
+        });
+    }
+}
+const app = new Main();
+process.on("SIGINT", () => {
+    console.log("Exiting...");
+    app.shutdown();
 });
+// const server = express();
+// server.use(express.json( { limit: "2mb" }));
+// server.post("/NotificationInfo/TollgateInfo", (req: Request, res: Response) => { 
+// 	console.log(req);
+// })
+// server.listen(serverListenPort, () => {
+// 	// if (err) return console.log(err);
+// 	console.log("Server running on port ", serverListenPort);
+// })
+// https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js
+// https://medium.com/bb-tutorials-and-thoughts/how-to-build-nodejs-rest-api-with-express-and-postgresql-typescript-version-121b5a11c9a6
+// https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript
 // sample query
 // (async () => {
 // 	const dbClient = await getClient();
@@ -36,27 +153,3 @@ const getClient = () => __awaiter(void 0, void 0, void 0, function* () {
 // 	console.log(log_data.rows);
 // 	await dbClient.end();
 // })
-class Main {
-    constructor() {
-        this.lastNumberplate = "";
-        this.dbClient = () => __awaiter(this, void 0, void 0, function* () {
-            return yield getClient();
-        });
-        this.makeDBQuery("SELECT * FROM \"Log\"").then((result) => {
-            console.log(result.rows);
-        });
-    }
-    handleNumberplateEvent() {
-    }
-    makeDBQuery(query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dataPromise = this.dbClient.query(query);
-            this.dbClient.end();
-            return dataPromise;
-        });
-    }
-}
-Server_1.default.listen(serverListenPort, () => {
-    // if (err) return console.log(err);
-    console.log("Server running on port ", serverListenPort);
-});
