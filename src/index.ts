@@ -39,45 +39,40 @@ class Main {
 		
 		this.dbPool = createPool();
 		
-		this.makeDBQuery("SELECT * FROM \"Log\"").then((result:QueryResult) => {
+		this.makeDBQuery("SELECT * FROM \"Log\"", []).then((result:QueryResult) => {
 		  console.log(result.rows);
 		})
 
 	}
 	
 	public async handleNumberplateEvent(request:express.Request, response:express.Response) {
-		const plate = request.body["Picture"].Plate.PlateNumber;
-		console.log(plate, request.body["Picture"].SnapInfo.Direction);
-		// if (plate == this.previousNumberplate) {return}
+		const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
+		console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
+		if (detectedNumberplate == this.previousNumberplate) {return}
 
 		if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
 			// vehicle is exiting, no need to check numberplate
 			console.log("REVERSE");	
-			
-			const data = await this.makeDBQuery(`SELECT * FROM "Vehicle" WHEkuRE numberplate = '${plate}';`)
-			console.log(data.rows);
-			// do stuff
-			
-			// .then((result) => {
-			
-			
+			this.openGate()
+			await this.editCarparkSpaceCounter(-1);
+			this.previousNumberplate = detectedNumberplate;
+				
 		} else if (request.body["Picture"].SnapInfo.Direction == "Obverse") {
 			// vehicle is entering the carpark
 			console.log("OBVERSE");
+			
+			const data = await this.makeDBQuery("SELECT * FROM \"Vehicle\" WHERE numberplate = '$1';", [detectedNumberplate])
+			console.log(data.rows);
 
-			// try {
-			// 	const data = await this.dbPool.query(`SELECT * FROM "Vehicle" WHERE numberplate = '${plate}';`)
-			// 	// do other stuff
-			// 	this.replySuccess(response);
-			// } catch (err: any) {
-			// 	this.handleQueryError(err, response)
-			// }
+			this.editCarparkSpaceCounter(1);
+			this.previousNumberplate = detectedNumberplate;
 		} else {
 			console.log("UNKNOWN VEHICLE DIRECTION " + request.body["Picture"].SnapInfo.Direction);
 		}
 
 	}
 
+	private openGate() {}
 	
 	private generateInsertQuery(table:string, parameters:object):string {
 
@@ -88,13 +83,16 @@ class Main {
 		return query;
 	}
 
-	private editSpaceCounter():void {
-
+	private async editCarparkSpaceCounter(increment:1|-1) {
+		console.log("UPDATE \"Carpark\" SET used_spaces = used_spaces " + increment.toString() + ";");
+		
+		await this.makeDBQuery("UPDATE \"Carpark\" SET used_spaces = used_spaces + $1;", [increment.toString()])
 	}
 
-	private async makeDBQuery(query:string) {
 
-		const result = await this.dbPool.query(query)
+	private async makeDBQuery(query:string, parameters:Array<string>) {
+
+		const result = await this.dbPool.query(query, parameters)
 		return result;
 		// const dataPromise = this.dbPool.query(query);
 		// return dataPromise;
@@ -102,7 +100,7 @@ class Main {
 
 	private handleQueryError(err: Error, res:express.Response) {
 		// bad query so send status 400 with error message
-		console.log("Query error");
+		console.log("QUERY ERROR\n", err.message);
 		
 		res.status(400)
 			.send("Query failed with error: " + err.message)
@@ -118,9 +116,9 @@ class Main {
 		
 		this.server.use(express.json( { limit: "2mb" } ));
 
-		this.server.post("/NotificationInfo/TollgateInfo", (req, res) => {
+		this.server.post("/NotificationInfo/TollgateInfo", async (req, res) => {
 			try {
-				this.handleNumberplateEvent(req, res);
+				await this.handleNumberplateEvent(req, res);
 				this.replySuccess(res);
 			} catch (error:any) {
 				this.handleQueryError(error, res);

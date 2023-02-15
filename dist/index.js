@@ -34,50 +34,53 @@ class Main {
         this.loadRoutes();
         this.httpServer = this.server.listen(this.serverListenPort, () => { console.log("server listening"); });
         this.dbPool = createPool();
-        this.makeDBQuery("SELECT * FROM \"Log\"").then((result) => {
+        this.makeDBQuery("SELECT * FROM \"Log\"", []).then((result) => {
             console.log(result.rows);
         });
     }
     handleNumberplateEvent(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const plate = request.body["Picture"].Plate.PlateNumber;
-            console.log(plate, request.body["Picture"].SnapInfo.Direction);
-            // if (plate == this.previousNumberplate) {return}
+            const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
+            console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
+            if (detectedNumberplate == this.previousNumberplate) {
+                return;
+            }
             if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
                 // vehicle is exiting, no need to check numberplate
                 console.log("REVERSE");
-                const data = yield this.makeDBQuery(`SELECT * FROM "Vehicle" WHEkuRE numberplate = '${plate}';`);
-                console.log(data.rows);
-                // do stuff
-                // .then((result) => {
+                this.openGate();
+                yield this.editCarparkSpaceCounter(-1);
+                this.previousNumberplate = detectedNumberplate;
             }
             else if (request.body["Picture"].SnapInfo.Direction == "Obverse") {
                 // vehicle is entering the carpark
                 console.log("OBVERSE");
-                // try {
-                // 	const data = await this.dbPool.query(`SELECT * FROM "Vehicle" WHERE numberplate = '${plate}';`)
-                // 	// do other stuff
-                // 	this.replySuccess(response);
-                // } catch (err: any) {
-                // 	this.handleQueryError(err, response)
-                // }
+                const data = yield this.makeDBQuery("SELECT * FROM \"Vehicle\" WHERE numberplate = '$1';", [detectedNumberplate]);
+                console.log(data.rows);
+                this.editCarparkSpaceCounter(1);
+                this.previousNumberplate = detectedNumberplate;
             }
             else {
                 console.log("UNKNOWN VEHICLE DIRECTION " + request.body["Picture"].SnapInfo.Direction);
             }
         });
     }
+    openGate() { }
     generateInsertQuery(table, parameters) {
         const keys = Object.keys(parameters);
         const values = Object.values(parameters);
         const query = `INSERT INTO ${table} (${keys}) VALUES (${values})`;
         return query;
     }
-    editSpaceCounter() {
-    }
-    makeDBQuery(query) {
+    editCarparkSpaceCounter(increment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.dbPool.query(query);
+            console.log("UPDATE \"Carpark\" SET used_spaces = used_spaces " + increment.toString() + ";");
+            yield this.makeDBQuery("UPDATE \"Carpark\" SET used_spaces = used_spaces + $1;", [increment.toString()]);
+        });
+    }
+    makeDBQuery(query, parameters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.dbPool.query(query, parameters);
             return result;
             // const dataPromise = this.dbPool.query(query);
             // return dataPromise;
@@ -85,7 +88,7 @@ class Main {
     }
     handleQueryError(err, res) {
         // bad query so send status 400 with error message
-        console.log("Query error");
+        console.log("QUERY ERROR\n", err.message);
         res.status(400)
             .send("Query failed with error: " + err.message)
             .end();
@@ -96,15 +99,15 @@ class Main {
     }
     loadRoutes() {
         this.server.use(express.json({ limit: "2mb" }));
-        this.server.post("/NotificationInfo/TollgateInfo", (req, res) => {
+        this.server.post("/NotificationInfo/TollgateInfo", (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                this.handleNumberplateEvent(req, res);
+                yield this.handleNumberplateEvent(req, res);
                 this.replySuccess(res);
             }
             catch (error) {
                 this.handleQueryError(error, res);
             }
-        });
+        }));
         this.server.post("/NotificationInfo/KeepAlive", (req, res) => {
             console.log(req);
             res.send({ "Message": "Success", "Result": true, "RspTime": "" });
