@@ -2,6 +2,15 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS public."Account"
 (
+<<<<<<< HEAD
+    "AccountID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 ),
+    "Username" character varying(20) NOT NULL,
+    "PasswordHash" character varying(256) NOT NULL,
+    "Role" integer NOT NULL,
+    "Deletable" boolean NOT NULL,
+    "LastLogin" timestamp without time zone,
+    PRIMARY KEY ("AccountID")
+=======
     "account_id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 ),
     "username" character varying(20) NOT NULL,
     "password_hash" character varying(256) NOT NULL,
@@ -9,6 +18,7 @@ CREATE TABLE IF NOT EXISTS public."Account"
     "delete_table" boolean NOT NULL,
     "last_login" timestamp without time zone,
     PRIMARY KEY ("account_id")
+>>>>>>> master
 );
 
 CREATE TABLE IF NOT EXISTS public."Vehicle"
