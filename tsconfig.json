@@ -4,6 +4,7 @@
 		"target": "es6",
 		// "esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
+<<<<<<< HEAD
 		// "watch": true,
 		"strict": true,
 		"alwaysStrict": true,
@@ -18,4 +19,14 @@
 	"exclude": [
 		"node_modules"
 	]
+=======
+		"watch": true
+	},	
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+>>>>>>> master
 }
