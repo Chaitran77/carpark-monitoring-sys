@@ -56,15 +56,18 @@ class Main {
 			this.openGate()
 			await this.editCarparkSpaceCounter(-1);
 			this.previousNumberplate = detectedNumberplate;
+			// TODO: UPDATE LOG RECORD
 				
 		} else if (request.body["Picture"].SnapInfo.Direction == "Obverse") {
 			// vehicle is entering the carpark
 			console.log("OBVERSE");
 			
 			const data = await this.makeDBQuery("SELECT * FROM \"Vehicle\" WHERE numberplate = '$1';", [detectedNumberplate])
+			// TODO: IF IN Vehicle, OPEN GATE, INCREMENT COUNTER, CREATE RECORD IN Log TABLE
+			this.editCarparkSpaceCounter(1);
+			// TODO: ELSE HIGH PRIORITY CREATE RECORD IN Log TABLE
 			console.log(data.rows);
 
-			this.editCarparkSpaceCounter(1);
 			this.previousNumberplate = detectedNumberplate;
 		} else {
 			console.log("UNKNOWN VEHICLE DIRECTION " + request.body["Picture"].SnapInfo.Direction);
