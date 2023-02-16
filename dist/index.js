@@ -32,7 +32,7 @@ class Main {
         this.serverListenPort = 8000;
         this.server = express();
         this.loadRoutes();
-        this.httpServer = this.server.listen(this.serverListenPort, () => { console.log("server listening"); });
+        this.httpServer = this.server.listen(this.serverListenPort, "0.0.0.0", () => { console.log("server listening"); });
         this.dbPool = createPool();
         this.makeDBQuery("SELECT * FROM \"Log\"", []).then((result) => {
             console.log(result.rows);
@@ -41,27 +41,43 @@ class Main {
     handleNumberplateEvent(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
-            console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
+            console.log(request.ip);
             if (detectedNumberplate == this.previousNumberplate) {
                 return;
-            }
+            } // stop executing if same numberplate
+            const detectedVehicleImage = request.body["Picture"].NormalPic.Content;
+            console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
+            // console.log(request);
             if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
                 // vehicle is exiting, no need to check numberplate
                 console.log("REVERSE");
                 this.openGate();
-                yield this.editCarparkSpaceCounter(-1);
+                yield this.editCarparkSpaceCounter(-1, request.ip);
                 this.previousNumberplate = detectedNumberplate;
+                this.updateLogRecordOnExit(detectedNumberplate, detectedVehicleImage);
             }
             else if (request.body["Picture"].SnapInfo.Direction == "Obverse") {
                 // vehicle is entering the carpark
                 console.log("OBVERSE");
                 const data = yield this.makeDBQuery("SELECT * FROM \"Vehicle\" WHERE numberplate = '$1';", [detectedNumberplate]);
                 console.log(data.rows);
-                this.editCarparkSpaceCounter(1);
+                if (data.rows.length != 0) { // something was returned, duplicate numberplates not allowed in table therefore only 1 record should be returned.
+                    // TODO: IF IN Vehicle, OPEN GATE, INCREMENT COUNTER, CREATE RECORD IN Log TABLE
+                    console.log("KNOWN VEHICLE");
+                    this.openGate();
+                    this.editCarparkSpaceCounter(1, request.ip);
+                    this.createLogRecordOnEntry(detectedNumberplate, detectedVehicleImage);
+                }
+                else { // nothing returned, unknown vehicle. PROTOCOL: Keep gate shut and notify reception
+                    // TODO: ELSE HIGH PRIORITY CREATE RECORD IN Log TABLE (which will notify reception)
+                    console.log("UNKNOWN VEHICLE");
+                }
+                console.log(data.rows);
                 this.previousNumberplate = detectedNumberplate;
             }
             else {
                 console.log("UNKNOWN VEHICLE DIRECTION " + request.body["Picture"].SnapInfo.Direction);
+                // populate log timestamps with unknown
             }
         });
     }
@@ -72,10 +88,21 @@ class Main {
         const query = `INSERT INTO ${table} (${keys}) VALUES (${values})`;
         return query;
     }
-    editCarparkSpaceCounter(increment) {
+    editCarparkSpaceCounter(increment, cameraAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("UPDATE \"Carpark\" SET used_spaces = used_spaces " + increment.toString() + ";");
-            yield this.makeDBQuery("UPDATE \"Carpark\" SET used_spaces = used_spaces + $1;", [increment.toString()]);
+            console.log("UPDATE \"Carpark\" SET used_spaces = used_spaces " + increment.toString() + " FROM \"Camera\" WHERE \"Carpark\".carpark_id = \"Camera\".carpark_id AND \"Camera\".ip_address = '" + cameraAddress + "';");
+            yield this.makeDBQuery("UPDATE \"Carpark\" SET used_spaces = used_spaces + $1 FROM \"Camera\" WHERE \"Carpark\".carpark_id = \"Camera\".carpark_id AND \"Camera\".ip_address = '$2';", [increment.toString(), cameraAddress]);
+        });
+    }
+    createLogRecordOnEntry(numberplate, image) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // need to match tenant_id
+        });
+    }
+    updateLogRecordOnExit(numberplate, image) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(`UPDATE "Log" SET exit_timestamp = to_timestamp(${Date.now() / 1000}), exit_image_base64 = '${image}' WHERE log_id = (SELECT MAX(log_id) FROM "Log" WHERE "Log".numberplate = '${numberplate}');`);
+            yield this.makeDBQuery(`UPDATE "Log" SET exit_timestamp = to_timestamp(${Date.now() / 1000}), exit_image_base64 = '${image}' WHERE log_id = (SELECT MAX(log_id) FROM "Log" WHERE "Log".numberplate = '${numberplate}');`, []);
         });
     }
     makeDBQuery(query, parameters) {
