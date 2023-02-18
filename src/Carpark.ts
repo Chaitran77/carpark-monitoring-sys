@@ -38,8 +38,9 @@ class Carpark {
 
     public static async getFreeSpaces() {
         // TODO: Change to correct query
-		const freeSpaces = parseInt((await dbQuery.makeDBQuery(`SELECT total_spaces FROM "Carpark";`, [])).rows[0]);
-        return freeSpaces;
+		const totalSpaces = (await dbQuery.makeDBQuery(`SELECT total_spaces FROM "Carpark";`, [])).rows[0].total_spaces;
+		const usedSpaces = (await dbQuery.makeDBQuery(`SELECT COUNT(*) AS used_spaces FROM "Log" WHERE exit_timestamp is NULL;`, [])).rows[0].used_spaces;
+        return totalSpaces - usedSpaces;
 	}
 
 
@@ -54,13 +55,6 @@ class Carpark {
 	// 	await dbQuery.makeDBQuery(`UPDATE "Carpark" SET used_spaces = used_spaces + $1 FROM "Camera" WHERE "Carpark".carpark_id = "Camera".carpark_id AND "Camera".ip_address = '$2';`, [increment.toString(), cameraAddress])
 	// }
 
-    public static async updateCarparkSpaceCounter() {
-        console.log("UPDATING SPACE COUNTER");
-        
-        // await dbQuery.makeDBQuery(`SELECT COUNT(exit_timestamp) FROM "Log" WHERE exit_timestamp = null;`, []);
-        // this.free_spaces = 9;
-    }
-
     public static openGate() {
 
     }
@@ -68,9 +62,7 @@ class Carpark {
 
     private static replyQueryError(err: Error, res:express.Response) {
 		// bad query so send status 400 with error message
-		// console.log("QUERY ERROR\n", err);
-        throw err;
-        
+		console.log("QUERY ERROR\n", err);
 		
 		res.status(400)
 			.send("Query failed with error: " + err.message)
@@ -126,6 +118,11 @@ class Carpark {
 			res.send("Insert request completed successfully");
 			res.status(200);
 			res.end()
+		})
+
+		Carpark.server.get("/getEntryCount", async (req: express.Request, res: express.Response) => {
+			const data = (await dbQuery.makeDBQuery(`SELECT numberplate, COUNT(*), MAX(entry_timestamp) FROM "Log" GROUP BY numberplate;`, [])).rows;
+
 		})
 
 		Carpark.server.post("/update/:table/", async (req: express.Request, res: express.Response) => {

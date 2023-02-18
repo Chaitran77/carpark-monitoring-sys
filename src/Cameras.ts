@@ -45,18 +45,20 @@ class Cameras {
     public static async processEvent(request:express.Request, response:express.Response) {
 		const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
 		console.log("CAMERA ID" + this.getCameraIDFromIP(request.ip).toString());
+		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString())
+		
 		if (detectedNumberplate == this.previousNumberplate) {return} // stop executing if same numberplate
-		//  ARE THERE ENOUGH SPACES?
+		if (await Carpark.getFreeSpaces() <= 0) {return}
+
 		const detectedVehicleImage = request.body["Picture"].NormalPic.Content;
 		console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
-		console.log(request);
+		console.log(request.body);
 		
 
 		if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
 			// vehicle is exiting, no need to check numberplate
 			console.log("REVERSE");	
 			Carpark.openGate()
-			await Carpark.updateCarparkSpaceCounter();
 			this.previousNumberplate = detectedNumberplate;
 			await Logs.updateLogRecordOnExit(detectedNumberplate, detectedVehicleImage);
 
@@ -67,18 +69,14 @@ class Cameras {
 			
 			
 			if (await Vehicle.isKnown(detectedNumberplate)) { // something was returned, duplicate numberplates not allowed in table therefore only 1 record should be returned.
-				// TODO: IF IN Vehicle, OPEN GATE, INCREMENT COUNTER, CREATE RECORD IN Log TABLE
-				
+	
 				console.log("KNOWN VEHICLE");
 				Carpark.openGate();
-				await Carpark.updateCarparkSpaceCounter();
 				await Logs.createRecord(detectedNumberplate, detectedVehicleImage, true, this.getCameraIDFromIP(request.ip));
+
 			} else { // nothing returned, unknown vehicle. PROTOCOL: Keep gate shut and notify reception
-				// TODO: ELSE HIGH PRIORITY CREATE RECORD IN Log TABLE (which will notify reception)
 				console.log("UNKNOWN VEHICLE");
                 await Logs.createRecord(detectedNumberplate, detectedVehicleImage, false, this.getCameraIDFromIP(request.ip));
-
-				
 			}
 
 
