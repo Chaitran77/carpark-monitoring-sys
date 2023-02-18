@@ -1,4 +1,5 @@
 class Log {
+
 	public EventID;
 	public CameraID;
 	public VehicleID;
@@ -7,10 +8,12 @@ class Log {
 	public ExitTimestamp;
 	public EntryImageBase64;
 	public ExitImageBase64;
+	public Acknowledged;
+	public KnownVehicle;
 	// https://stackoverflow.com/a/42884828 to store dates/times 
 	// client.query will return a timestamp String in the promise result rows
 
-	constructor(EventID: number, CameraID: number, VehicleID: number, Numberplate: String, EntryTimestamp: Date, ExitTimestamp: Date, EntryImageBase64: String, ExitImageBase64: String) {
+	constructor(EventID: number, CameraID: number, VehicleID: number, Numberplate: String, EntryTimestamp: Date, ExitTimestamp: Date, EntryImageBase64: String, ExitImageBase64: String, Acknowledged: String, KnownVehicle:String) {
 		this.EventID = EventID;
 		this.CameraID = CameraID;
 		this.VehicleID = VehicleID;
@@ -19,5 +22,10 @@ class Log {
 		this.ExitTimestamp = ExitTimestamp;
 		this.EntryImageBase64 = EntryImageBase64;
 		this.ExitImageBase64 = ExitImageBase64;
+		this.Acknowledged = Acknowledged;
+		this.KnownVehicle = KnownVehicle;
 	}
+	
 }
+
+export default Log;

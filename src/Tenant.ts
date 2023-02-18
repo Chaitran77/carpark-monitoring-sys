@@ -9,3 +9,5 @@ class Tenant {
 		this.Surname = Surname;
 	}
 }
+
+export default Tenant;

@@ -1,0 +1,20 @@
+const { Pool } = require("pg");
+
+abstract class dbPool {
+	public static dbPool: typeof Pool;
+
+	public static async createPool() {
+		// connect to local Postgresql database using credentials in local .env file
+		dbPool.dbPool = await new Pool({
+			host: process.env.PG_HOST,
+			port: process.env.PG_PORT,
+			user: process.env.PG_USER,
+			password: process.env.PG_PASSWORD,
+			database: process.env.PG_DATABASE,
+			ssl: false,
+		});
+	}
+
+}
+
+export default dbPool;

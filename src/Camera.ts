@@ -1,4 +1,5 @@
 class Camera {
+
 	public CameraID: number;
 	public IPAddress: String;
 	public EventURL: String;
@@ -13,3 +14,5 @@ class Camera {
 		this.CarparkID = CarparkID;
 	}
 }
+
+export default Camera;
