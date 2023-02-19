@@ -4,6 +4,7 @@ import { Server } from "http";
 import dbQuery from "./dbQuery";
 import Cameras from "./Cameras";
 import dbPool from "./dbPool";
+import Logs from "./Logs";
 
 
 class Carpark {
@@ -89,7 +90,8 @@ class Carpark {
 
 		Carpark.server.post("/NotificationInfo/KeepAlive", (req: express.Request, res: express.Response) => { 
 			console.log(req);
-			res.send({"Message": "Success", "Result": true, "RspTime": ""})
+			const now:Date = new Date();
+			res.send({"Message": "Success", "Result": true, "RspTime": `${now.getFullYear()}-0${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`})
 			res.status(200);
 			res.end();
 		})
@@ -108,15 +110,21 @@ class Carpark {
 
 		});
 
-		Carpark.server.post("/logData/:recordCount/", async (req:express.Request, res:express.Response) => {
+		Carpark.server.get("/logData/:recordCount/", async (req:express.Request, res:express.Response) => {
 			// returns the most recent req.params.recordCount number of records in the Log table (highest id) 
+			console.log("R E Q U E S T    FOR    L O G S");
+			
+			res.status(200);
+			await Logs.loadLogs(parseInt(req.params.recordCount)); // load fresh logs from db
+			res.json(Logs.getLogs());
+			res.end()
 		});
 
 		Carpark.server.post("/insert/:table/", async (req: express.Request, res: express.Response) => {
 			// for tables other than Log from receptionUI, not for numberplates.
 			console.log(dbQuery.generateInsertQuery(req.params.table, req.body));
+			res.status(201); // 201 Created HTTP status code
 			res.send("Insert request completed successfully");
-			res.status(200);
 			res.end()
 		})
 
