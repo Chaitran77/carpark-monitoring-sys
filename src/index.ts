@@ -32,7 +32,6 @@ class Main {
 
 
 const app:Main = new Main();
-console.log("hi");
 
 process.on("SIGINT", () => {
 	console.log("Exiting...")

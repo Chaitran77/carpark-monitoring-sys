@@ -14,17 +14,17 @@ class Carpark {
     public static server: express.Application;
     public static httpServer: Server;
 
-    public static carpark_id:number;
-    public static total_spaces:number;
-    public static free_spaces:number;
+    public static CarparkID:number;
+    public static TotalSpaces:number;
+    public static FreeSpaces:number;
 
 
-    constructor(carpark_id: number, total_spaces: number, free_spaces: number) {
+    constructor(CarparkID: number, TotalSpaces: number, FreeSpaces: number) {
 
-        Carpark.carpark_id = carpark_id;
-        Carpark.total_spaces = total_spaces;
+        Carpark.CarparkID = CarparkID;
+        Carpark.TotalSpaces = TotalSpaces;
 
-        Carpark.free_spaces = free_spaces;
+        Carpark.FreeSpaces = FreeSpaces;
         // the start method must be run at a higher level
     }
 
@@ -110,6 +110,15 @@ class Carpark {
 
 		});
 
+		Carpark.server.get("/carparkStatistics", async (req:express.Request, res:express.Response) => {
+			res.status(200);
+			res.json({
+				"FreeSpaces": await this.getFreeSpaces(), 
+				"TotalSpaces": this.TotalSpaces
+			})
+			res.end();
+		})
+
 		Carpark.server.get("/logData/:recordCount/", async (req:express.Request, res:express.Response) => {
 			// returns the most recent req.params.recordCount number of records in the Log table (highest id) 
 			console.log("R E Q U E S T    FOR    L O G S");
@@ -128,7 +137,7 @@ class Carpark {
 			res.end()
 		})
 
-		Carpark.server.get("/getEntryCount", async (req: express.Request, res: express.Response) => {
+		Carpark.server.get("/entryCount", async (req: express.Request, res: express.Response) => {
 			const data = (await dbQuery.makeDBQuery(`SELECT numberplate, COUNT(*), MAX(entry_timestamp) FROM "Log" GROUP BY numberplate;`, [])).rows;
 
 		})
@@ -143,6 +152,7 @@ class Carpark {
     public static async shutdown() {
 		this.httpServer.close();
 		await dbPool.dbPool.end;
+		process.disconnect();
 		process.exit(0);
 	}
     
