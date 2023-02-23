@@ -28,10 +28,7 @@ class Cameras {
         Cameras.cameras.push(camera);
     }
 
-    private static getCameraIDFromIP(ip_address:string):number {
-        console.log(this.cameras);
-        console.log(ip_address);
-        
+    private static getCameraIDFromIP(ip_address:string):number {        
         
         for (let i = 0; i < this.cameras.length; i++) {
             if (this.cameras[i].IPAddress == ip_address) return this.cameras[i].CameraID;
@@ -45,14 +42,13 @@ class Cameras {
     public static async processEvent(request:express.Request, response:express.Response) {
 		const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
 		console.log("CAMERA ID" + this.getCameraIDFromIP(request.ip).toString());
-		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString())
+		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
 		
 		if (detectedNumberplate == this.previousNumberplate) {return} // stop executing if same numberplate
-		if (await Carpark.getFreeSpaces() <= 0) {return}
+		if ((await Carpark.getFreeSpaces()) <= 0) { console.log("NO FREE SPACES"); return; } // stop executing if no free spaces
 
 		const detectedVehicleImage = request.body["Picture"].NormalPic.Content;
 		console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
-		console.log(request.body);
 		
 
 		if (request.body["Picture"].SnapInfo.Direction == "Reverse") {

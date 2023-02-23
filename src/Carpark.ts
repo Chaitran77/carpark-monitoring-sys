@@ -38,9 +38,8 @@ class Carpark {
     }
 
     public static async getFreeSpaces() {
-        // TODO: Change to correct query
 		const totalSpaces = (await dbQuery.makeDBQuery(`SELECT total_spaces FROM "Carpark";`, [])).rows[0].total_spaces;
-		const usedSpaces = (await dbQuery.makeDBQuery(`SELECT COUNT(*) AS used_spaces FROM "Log" WHERE exit_timestamp is NULL;`, [])).rows[0].used_spaces;
+		const usedSpaces = (await dbQuery.makeDBQuery(`SELECT COUNT(*) AS used_spaces FROM "Log" WHERE exit_timestamp is NULL;`, [])).rows[0].used_spaces; // count Log records without an exit_timestamp
         return totalSpaces - usedSpaces;
 	}
 
@@ -80,7 +79,7 @@ class Carpark {
 		Carpark.server.use(express.json( { limit: "2mb" } ));
 
 		Carpark.server.post("/NotificationInfo/TollgateInfo", async (req, res) => {
-			try {
+			try {				
 				await Cameras.processEvent(req, res);
 				this.replySuccess(res);
 			} catch (error:any) {
@@ -89,7 +88,6 @@ class Carpark {
 		})
 
 		Carpark.server.post("/NotificationInfo/KeepAlive", (req: express.Request, res: express.Response) => { 
-			console.log(req);
 			const now:Date = new Date();
 			res.send({"Message": "Success", "Result": true, "RspTime": `${now.getFullYear()}-0${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`})
 			res.status(200);
@@ -105,8 +103,9 @@ class Carpark {
 
 		// })
 
-		Carpark.server.post("/allVehicleTenantData", async (req:express.Request, res:express.Response) => {
+		Carpark.server.get("/tenantDataFromVehicleID/:VehicleID", async (req:express.Request, res:express.Response) => {
 			// returns tenant records joined with vehicle records
+			// TODO: tenantDataFromVehicleID
 
 		});
 
