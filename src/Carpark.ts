@@ -1,6 +1,7 @@
 import * as express from "express";
 import { Server } from "http";
 
+import Authentication from "./Authentication";
 import dbQuery from "./dbQuery";
 import Cameras from "./Cameras";
 import dbPool from "./dbPool";
@@ -37,6 +38,7 @@ class Carpark {
 		Carpark.httpServer = Carpark.server.listen(this.serverListenPort, "0.0.0.0", () => { console.log("server listening") });
     }
 
+	// although "freeSpaces" is what is needed in the client frontend, and 
     public static async getFreeSpaces() {
 		const totalSpaces = (await dbQuery.makeDBQuery(`SELECT total_spaces FROM "Carpark";`, [])).rows[0].total_spaces;
 		const usedSpaces = (await dbQuery.makeDBQuery(`SELECT COUNT(*) AS used_spaces FROM "Log" WHERE exit_timestamp is NULL;`, [])).rows[0].used_spaces; // count Log records without an exit_timestamp
@@ -49,11 +51,13 @@ class Carpark {
     }
 
     // previous implementation used to update the counter in the database. Counter is now held in memory and derived from data in base
-    // private async editCarparkSpaceCounter(increment:1|-1, cameraAddress:string) {
-	// 	console.log(`UPDATE "Carpark" SET used_spaces = used_spaces + ${increment.toString()} FROM "Camera" WHERE "Carpark".carpark_id = "Camera".carpark_id AND "Camera".ip_address = '${cameraAddress}';`);
+    /*
+	private async editCarparkSpaceCounter(increment:1|-1, cameraAddress:string) {
+	 	console.log(`UPDATE "Carpark" SET used_spaces = used_spaces + ${increment.toString()} FROM "Camera" WHERE "Carpark".carpark_id = "Camera".carpark_id AND "Camera".ip_address = '${cameraAddress}';`);
 		
-	// 	await dbQuery.makeDBQuery(`UPDATE "Carpark" SET used_spaces = used_spaces + $1 FROM "Camera" WHERE "Carpark".carpark_id = "Camera".carpark_id AND "Camera".ip_address = '$2';`, [increment.toString(), cameraAddress])
-	// }
+	 	await dbQuery.makeDBQuery(`UPDATE "Carpark" SET used_spaces = used_spaces + $1 FROM "Camera" WHERE "Carpark".carpark_id = "Camera".carpark_id AND "Camera".ip_address = '$2';`, [increment.toString(), cameraAddress])
+	}
+	*/
 
     public static openGate() {
 
@@ -77,7 +81,7 @@ class Carpark {
 	private static loadRoutes(): void {
 		
 		Carpark.server.use(express.json( { limit: "2mb" } ));
-
+		
 		Carpark.server.post("/NotificationInfo/TollgateInfo", async (req, res) => {
 			try {				
 				await Cameras.processEvent(req, res);
@@ -86,24 +90,39 @@ class Carpark {
 				this.replyQueryError(error, res);
 			}
 		})
-
+		
 		Carpark.server.post("/NotificationInfo/KeepAlive", (req: express.Request, res: express.Response) => { 
 			const now:Date = new Date();
 			res.send({"Message": "Success", "Result": true, "RspTime": `${now.getFullYear()}-0${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`})
 			res.status(200);
 			res.end();
 		})
-
-
+		
+		
 		// for requests from ReceptionUI.
-		// TODO: Implement authentication
-
+		
 		// Carpark.server.get("/query/:table", async (req:express.Request, res:express.Response) => {
 		// 	// query string will hold fields
-
+		
 		// })
+		const authBarrierAdminRoute = Authentication.authBarrier(true);
+		const authBarrierBaseRoute = Authentication.authBarrier(false);
+		
+		Carpark.server.get("/loginSalt", async (req: express.Request, res: express.Response) => {
+			const username:string|any = req.query.username;
+			
+			res.send((await Authentication.getLoginSalt(username)));
+			res.status(200);
+			res.end();
+		})
 
-		Carpark.server.get("/tenantDataFromVehicleID/:VehicleID", async (req:express.Request, res:express.Response) => {
+		Carpark.server.post("/login", authBarrierBaseRoute, async (req: express.Request, res: express.Response) => {
+			// essentially a check so the user can know immediately if their credentials do not work; there is no is_logged_in state or token to change
+			res.status(200).send("Valid credentials");
+			res.end();
+		})
+
+		Carpark.server.get("/tenantDataFromVehicleID/:VehicleID", authBarrierBaseRoute, async (req:express.Request, res:express.Response) => {
 			// returns tenant records joined with vehicle records
 			// TODO: tenantDataFromVehicleID
 
@@ -118,7 +137,7 @@ class Carpark {
 			res.end();
 		})
 
-		Carpark.server.get("/logData/:recordCount/", async (req:express.Request, res:express.Response) => {
+		Carpark.server.get("/logData/:recordCount", authBarrierBaseRoute, async (req:express.Request, res:express.Response) => {
 			// returns the most recent req.params.recordCount number of records in the Log table (highest id) 
 			console.log("R E Q U E S T    FOR    L O G S");
 			
@@ -128,7 +147,7 @@ class Carpark {
 			res.end()
 		});
 
-		Carpark.server.post("/insert/:table/", async (req: express.Request, res: express.Response) => {
+		Carpark.server.post("/insert/:table", authBarrierBaseRoute, async (req: express.Request, res: express.Response) => {
 			// for tables other than Log from receptionUI, not for numberplates.
 			console.log(dbQuery.generateInsertQuery(req.params.table, req.body));
 			res.status(201); // 201 Created HTTP status code
@@ -141,9 +160,11 @@ class Carpark {
 
 		})
 
-		Carpark.server.post("/update/:table/", async (req: express.Request, res: express.Response) => {
+		Carpark.server.post("/update/:table", async (req: express.Request, res: express.Response) => {
 
 		})
+
+		Carpark.server.post("/openGate", authBarrierAdminRoute, async (req: express.Request, res: express.Response) => {this.openGate});
 	}
 
 
