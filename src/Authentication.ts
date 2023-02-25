@@ -3,6 +3,8 @@ import dbQuery from "./dbQuery";
 
 abstract class Authentication {
 
+    // SOURCE: Credit to https://emn178.github.io/online-tools/sha256.html for simple hashing tool. Used to manually generate initial hashes, then hashes with salts.
+
     // check if provided credentials are valid for route being accessed
     public static authBarrier(isAdministratorLevel:boolean) {
 

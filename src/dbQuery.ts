@@ -4,6 +4,7 @@ require("dotenv").config();
 
 abstract class dbQuery  {
 
+	// for use by client in the case that something (i.e. new tenant/vehicle) needs to be added to db
 	public static generateInsertQuery(table:string, parameters:object):string {
 
 		const keys = Object.keys(parameters);

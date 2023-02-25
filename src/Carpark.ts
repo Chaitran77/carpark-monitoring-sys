@@ -46,7 +46,7 @@ class Carpark {
 	}
 
 
-    public static async getCarparkRecord() {
+    public static async getCarparkRecords() {
         return (await dbQuery.makeDBQuery(`SELECT carpark_id, total_spaces, used_spaces FROM "Carpark";`, []));
     }
 
@@ -82,7 +82,8 @@ class Carpark {
 		
 		Carpark.server.use(express.json( { limit: "2mb" } ));
 		
-		Carpark.server.post("/NotificationInfo/TollgateInfo", async (req, res) => {
+		// this will correspond to "/NotificationInfo/TollgateInfo" with Dahua cameras (true for this project)
+		Carpark.server.post(Cameras.cameras[0].EventURL, async (req, res) => {
 			try {				
 				await Cameras.processEvent(req, res);
 				this.replySuccess(res);

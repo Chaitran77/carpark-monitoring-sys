@@ -7,7 +7,7 @@ import Vehicle from "./Vehicle";
 
 class Cameras {
     
-    public static cameras: Camera[] = [];
+    public static cameras:Camera[] = [];
 
     public static previousNumberplate:string;
 

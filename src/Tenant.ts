@@ -1,9 +1,9 @@
 class Tenant {
-	public TenantID;
-	public Forename;
-	public Surname;
+	public TenantID:number;
+	public Forename:string;
+	public Surname:string;
 
-	constructor(TenantID: number, Forename: String, Surname: String) {
+	constructor(TenantID: number, Forename: string, Surname: string) {
 		this.TenantID = TenantID;
 		this.Forename = Forename;
 		this.Surname = Surname;

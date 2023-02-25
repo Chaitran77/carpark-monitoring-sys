@@ -1,0 +1,349 @@
+<svg version="1.1" baseProfile="full" width="3908.5" height="537.0" viewbox="0 0 3908.5 537" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+<desc >#.interface: fill=lightblue
+#.enumeration: fill=lightgreen
+#.type: fill=lightgray
+[Authentication||+static authBarrier(): (req: Request&lt;ParamsDictionary, any, any, ParsedQs, Record&lt;string, any&gt;&gt;, res: Response&lt;any, Record&lt;string, any&gt;&gt;, next: NextFunction) =&gt; Promise&lt;...&gt;;-static checkHash(): Promise&lt;boolean&gt;;-static checkUserLevel(): Promise&lt;boolean&gt;;+static getLoginSalt(): Promise&lt;any&gt;]
+[Camera|+CameraID: number;+IPAddress: String;+EventURL: String;+ResponseFormat: String;+CarparkID: number|]
+[Cameras|+static cameras: Camera\[\];+static previousNumberplate: string|+static getCameras(): Promise&lt;any&gt;;+static loadCameras(): Promise&lt;void&gt;;-static addCamera(): void;-static getCameraIDFromIP(): number;+static processEvent(): Promise&lt;void&gt;]
+[Cameras]  - 0..* [Camera]
+[Carpark|-static serverListenPort: number;+static server: Application;+static httpServer: Server&lt;typeof IncomingMessage, typeof ServerResponse&gt;;+static CarparkID: number;+static TotalSpaces: number;+static FreeSpaces: number|+static start(): Promise&lt;void&gt;;+static getFreeSpaces(): Promise&lt;number&gt;;+static getCarparkRecords(): Promise&lt;any&gt;;+static openGate(): void;-static replyQueryError(): void;-static replySuccess(): void;-static loadRoutes(): void;+static shutdown(): Promise&lt;void&gt;]
+[dbPool|+static dbPool: any|+static createPool(): Promise&lt;void&gt;]
+[dbQuery||+static generateInsertQuery(): string;+static makeDBQuery(): Promise&lt;any&gt;]
+[Main|-carpark: Carpark|+start(): Promise&lt;void&gt;]
+[Main]  -  [Carpark]
+[Log|+EventID: number;+CameraID: number;+VehicleID: number;+Numberplate: string;+EntryTimestamp: Date;+ExitTimestamp: Date;+EntryImageBase64: string;+ExitImageBase64: string;+Acknowledged: boolean;+KnownVehicle: boolean|]
+[Logs|-static logs: Log\[\]|+static getLogs(): Log\[\];+static loadLogs(): Promise&lt;void&gt;;-static addLog(): void;+static createRecord(): Promise&lt;void&gt;;+static updateLogRecordOnExit(): Promise&lt;void&gt;]
+[Logs]  - 0..* [Log]
+[Tenant|+TenantID: number;+Forename: String;+Surname: String|]
+[Vehicle|+VehicleID: number;+Numberplate: String;+TenantID: number|+static getAllData(): Promise&lt;any&gt;;+static getData(): Promise&lt;any&gt;;+static isKnown(): Promise&lt;boolean&gt;]</desc>
+<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
+<g transform="translate(0.5, 0.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+<g stroke="transparent" fill="transparent">
+<rect x="0.0" y="0.0" height="537.0" width="3908.5" stroke="none"></rect>
+</g>
+<g transform="translate(8, 8)" fill="#33322E">
+<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+<text x="1588.0" y="271.5" stroke="none">0..*</text>
+<path d="M1623.0 168.0 L1623 188 L1623 279.5 L1623.0 279.5 " fill="none"></path>
+<path d="M2622.0 130.5 L2622 188 L2622 208 L2622.0 208.0 " fill="none"></path>
+<text x="3057.5" y="234.0" stroke="none">0..*</text>
+<path d="M3092.5 160.5 L3092.5 188 L3092.5 242 L3092.5 242.0 " fill="none"></path>
+<g data-name="Authentication">
+<g fill="#eee8d5" stroke="#33322E" data-name="Authentication">
+<rect x="0.0" y="27.0" height="115.0" width="1423.0" data-name="Authentication"></rect>
+<path d="M0.0 58.0 L1423.0 58.0" fill="none" data-name="Authentication"></path>
+<path d="M0.0 66.0 L1423.0 66.0" fill="none" data-name="Authentication"></path>
+</g>
+<g transform="translate(0, 27)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Authentication">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Authentication">
+<a id=".Authentication" xlink:href=""><text x="703.5" y="13.5" stroke="none" text-anchor="middle" data-name="Authentication">Authentication</text></a>
+
+</g>
+</g>
+<g transform="translate(0, 58)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Authentication">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Authentication">
+
+</g>
+</g>
+<g transform="translate(0, 66)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Authentication">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Authentication">
+<text x="0.0" y="13.5" stroke="none" data-name="Authentication">+static authBarrier(): (req: Request&lt;ParamsDictionary, any, any, ParsedQs, Record&lt;string, any&gt;&gt;, res: Response&lt;any, Record&lt;string, any&gt;&gt;, next: NextFunction) =&gt; Promise&lt;...&gt;</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Authentication">-static checkHash(): Promise&lt;boolean&gt;</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Authentication">-static checkUserLevel(): Promise&lt;boolean&gt;</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Authentication">+static getLoginSalt(): Promise&lt;any&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="Camera">
+<g fill="#eee8d5" stroke="#33322E" data-name="Camera">
+<rect x="1515.0" y="280.0" height="130.0" width="217.0" data-name="Camera"></rect>
+<path d="M1515.0 311.0 L1732.0 311.0" fill="none" data-name="Camera"></path>
+<path d="M1515.0 402.0 L1732.0 402.0" fill="none" data-name="Camera"></path>
+</g>
+<g transform="translate(1515, 280)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Camera">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Camera">
+<a id=".Camera" xlink:href=""><text x="100.5" y="13.5" stroke="none" text-anchor="middle" data-name="Camera">Camera</text></a>
+
+</g>
+</g>
+<g transform="translate(1515, 311)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Camera">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Camera">
+<text x="0.0" y="13.5" stroke="none" data-name="Camera">+CameraID: number</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Camera">+IPAddress: String</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Camera">+EventURL: String</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Camera">+ResponseFormat: String</text>
+<text x="0.0" y="73.5" stroke="none" data-name="Camera">+CarparkID: number</text>
+
+</g>
+</g>
+<g transform="translate(1515, 402)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Camera">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Camera">
+
+</g>
+</g>
+</g>
+<g data-name="Cameras">
+<g fill="#eee8d5" stroke="#33322E" data-name="Cameras">
+<rect x="1463.0" y="0.0" height="168.0" width="320.0" data-name="Cameras"></rect>
+<path d="M1463.0 31.0 L1783.0 31.0" fill="none" data-name="Cameras"></path>
+<path d="M1463.0 77.0 L1783.0 77.0" fill="none" data-name="Cameras"></path>
+</g>
+<g transform="translate(1463, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Cameras">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Cameras">
+<a id=".Cameras" xlink:href=""><text x="152.0" y="13.5" stroke="none" text-anchor="middle" data-name="Cameras">Cameras</text></a>
+
+</g>
+</g>
+<g transform="translate(1463, 31)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Cameras">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Cameras">
+<text x="0.0" y="13.5" stroke="none" data-name="Cameras">+static cameras: Camera[]</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Cameras">+static previousNumberplate: string</text>
+
+</g>
+</g>
+<g transform="translate(1463, 77)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Cameras">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Cameras">
+<text x="0.0" y="13.5" stroke="none" data-name="Cameras">+static getCameras(): Promise&lt;any&gt;</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Cameras">+static loadCameras(): Promise&lt;void&gt;</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Cameras">-static addCamera(): void</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Cameras">-static getCameraIDFromIP(): number</text>
+<text x="0.0" y="73.5" stroke="none" data-name="Cameras">+static processEvent(): Promise&lt;void&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="Carpark">
+<g fill="#eee8d5" stroke="#33322E" data-name="Carpark">
+<rect x="2307.0" y="208.0" height="273.0" width="631.0" data-name="Carpark"></rect>
+<path d="M2307.0 239.0 L2938.0 239.0" fill="none" data-name="Carpark"></path>
+<path d="M2307.0 345.0 L2938.0 345.0" fill="none" data-name="Carpark"></path>
+</g>
+<g transform="translate(2307, 208)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Carpark">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Carpark">
+<a id=".Carpark" xlink:href=""><text x="307.5" y="13.5" stroke="none" text-anchor="middle" data-name="Carpark">Carpark</text></a>
+
+</g>
+</g>
+<g transform="translate(2307, 239)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Carpark">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Carpark">
+<text x="0.0" y="13.5" stroke="none" data-name="Carpark">-static serverListenPort: number</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Carpark">+static server: Application</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Carpark">+static httpServer: Server&lt;typeof IncomingMessage, typeof ServerResponse&gt;</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Carpark">+static CarparkID: number</text>
+<text x="0.0" y="73.5" stroke="none" data-name="Carpark">+static TotalSpaces: number</text>
+<text x="0.0" y="88.5" stroke="none" data-name="Carpark">+static FreeSpaces: number</text>
+
+</g>
+</g>
+<g transform="translate(2307, 345)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Carpark">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Carpark">
+<text x="0.0" y="13.5" stroke="none" data-name="Carpark">+static start(): Promise&lt;void&gt;</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Carpark">+static getFreeSpaces(): Promise&lt;number&gt;</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Carpark">+static getCarparkRecords(): Promise&lt;any&gt;</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Carpark">+static openGate(): void</text>
+<text x="0.0" y="73.5" stroke="none" data-name="Carpark">-static replyQueryError(): void</text>
+<text x="0.0" y="88.5" stroke="none" data-name="Carpark">-static replySuccess(): void</text>
+<text x="0.0" y="103.5" stroke="none" data-name="Carpark">-static loadRoutes(): void</text>
+<text x="0.0" y="118.5" stroke="none" data-name="Carpark">+static shutdown(): Promise&lt;void&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="dbPool">
+<g fill="#eee8d5" stroke="#33322E" data-name="dbPool">
+<rect x="1823.0" y="38.0" height="93.0" width="297.0" data-name="dbPool"></rect>
+<path d="M1823.0 69.0 L2120.0 69.0" fill="none" data-name="dbPool"></path>
+<path d="M1823.0 100.0 L2120.0 100.0" fill="none" data-name="dbPool"></path>
+</g>
+<g transform="translate(1823, 38)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="dbPool">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="dbPool">
+<a id=".dbPool" xlink:href=""><text x="140.5" y="13.5" stroke="none" text-anchor="middle" data-name="dbPool">dbPool</text></a>
+
+</g>
+</g>
+<g transform="translate(1823, 69)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="dbPool">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="dbPool">
+<text x="0.0" y="13.5" stroke="none" data-name="dbPool">+static dbPool: any</text>
+
+</g>
+</g>
+<g transform="translate(1823, 100)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="dbPool">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="dbPool">
+<text x="0.0" y="13.5" stroke="none" data-name="dbPool">+static createPool(): Promise&lt;void&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="dbQuery">
+<g fill="#eee8d5" stroke="#33322E" data-name="dbQuery">
+<rect x="2160.0" y="42.0" height="85.0" width="322.0" data-name="dbQuery"></rect>
+<path d="M2160.0 73.0 L2482.0 73.0" fill="none" data-name="dbQuery"></path>
+<path d="M2160.0 81.0 L2482.0 81.0" fill="none" data-name="dbQuery"></path>
+</g>
+<g transform="translate(2160, 42)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="dbQuery">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="dbQuery">
+<a id=".dbQuery" xlink:href=""><text x="153.0" y="13.5" stroke="none" text-anchor="middle" data-name="dbQuery">dbQuery</text></a>
+
+</g>
+</g>
+<g transform="translate(2160, 73)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="dbQuery">
+<g transform="translate(8, 8)" fill="#33322E" data-name="dbQuery">
+
+</g>
+</g>
+<g transform="translate(2160, 81)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="dbQuery">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="dbQuery">
+<text x="0.0" y="13.5" stroke="none" data-name="dbQuery">+static generateInsertQuery(): string</text>
+<text x="0.0" y="28.5" stroke="none" data-name="dbQuery">+static makeDBQuery(): Promise&lt;any&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="Main">
+<g fill="#eee8d5" stroke="#33322E" data-name="Main">
+<rect x="2522.0" y="38.0" height="93.0" width="200.0" data-name="Main"></rect>
+<path d="M2522.0 69.0 L2722.0 69.0" fill="none" data-name="Main"></path>
+<path d="M2522.0 100.0 L2722.0 100.0" fill="none" data-name="Main"></path>
+</g>
+<g transform="translate(2522, 38)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Main">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Main">
+<a id=".Main" xlink:href=""><text x="92.0" y="13.5" stroke="none" text-anchor="middle" data-name="Main">Main</text></a>
+
+</g>
+</g>
+<g transform="translate(2522, 69)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Main">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Main">
+<text x="0.0" y="13.5" stroke="none" data-name="Main">-carpark: Carpark</text>
+
+</g>
+</g>
+<g transform="translate(2522, 100)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Main">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Main">
+<text x="0.0" y="13.5" stroke="none" data-name="Main">+start(): Promise&lt;void&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="Log">
+<g fill="#eee8d5" stroke="#33322E" data-name="Log">
+<rect x="2978.0" y="242.0" height="205.0" width="230.0" data-name="Log"></rect>
+<path d="M2978.0 273.0 L3208.0 273.0" fill="none" data-name="Log"></path>
+<path d="M2978.0 439.0 L3208.0 439.0" fill="none" data-name="Log"></path>
+</g>
+<g transform="translate(2978, 242)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Log">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Log">
+<a id=".Log" xlink:href=""><text x="107.0" y="13.5" stroke="none" text-anchor="middle" data-name="Log">Log</text></a>
+
+</g>
+</g>
+<g transform="translate(2978, 273)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Log">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Log">
+<text x="0.0" y="13.5" stroke="none" data-name="Log">+EventID: number</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Log">+CameraID: number</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Log">+VehicleID: number</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Log">+Numberplate: string</text>
+<text x="0.0" y="73.5" stroke="none" data-name="Log">+EntryTimestamp: Date</text>
+<text x="0.0" y="88.5" stroke="none" data-name="Log">+ExitTimestamp: Date</text>
+<text x="0.0" y="103.5" stroke="none" data-name="Log">+EntryImageBase64: string</text>
+<text x="0.0" y="118.5" stroke="none" data-name="Log">+ExitImageBase64: string</text>
+<text x="0.0" y="133.5" stroke="none" data-name="Log">+Acknowledged: boolean</text>
+<text x="0.0" y="148.5" stroke="none" data-name="Log">+KnownVehicle: boolean</text>
+
+</g>
+</g>
+<g transform="translate(2978, 439)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Log">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Log">
+
+</g>
+</g>
+</g>
+<g data-name="Logs">
+<g fill="#eee8d5" stroke="#33322E" data-name="Logs">
+<rect x="2890.0" y="8.0" height="153.0" width="406.0" data-name="Logs"></rect>
+<path d="M2890.0 39.0 L3296.0 39.0" fill="none" data-name="Logs"></path>
+<path d="M2890.0 70.0 L3296.0 70.0" fill="none" data-name="Logs"></path>
+</g>
+<g transform="translate(2890, 8)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Logs">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Logs">
+<a id=".Logs" xlink:href=""><text x="195.0" y="13.5" stroke="none" text-anchor="middle" data-name="Logs">Logs</text></a>
+
+</g>
+</g>
+<g transform="translate(2890, 39)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Logs">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Logs">
+<text x="0.0" y="13.5" stroke="none" data-name="Logs">-static logs: Log[]</text>
+
+</g>
+</g>
+<g transform="translate(2890, 70)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Logs">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Logs">
+<text x="0.0" y="13.5" stroke="none" data-name="Logs">+static getLogs(): Log[]</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Logs">+static loadLogs(): Promise&lt;void&gt;</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Logs">-static addLog(): void</text>
+<text x="0.0" y="58.5" stroke="none" data-name="Logs">+static createRecord(): Promise&lt;void&gt;</text>
+<text x="0.0" y="73.5" stroke="none" data-name="Logs">+static updateLogRecordOnExit(): Promise&lt;void&gt;</text>
+
+</g>
+</g>
+</g>
+<g data-name="Tenant">
+<g fill="#eee8d5" stroke="#33322E" data-name="Tenant">
+<rect x="3336.0" y="34.0" height="100.0" width="168.0" data-name="Tenant"></rect>
+<path d="M3336.0 65.0 L3504.0 65.0" fill="none" data-name="Tenant"></path>
+<path d="M3336.0 126.0 L3504.0 126.0" fill="none" data-name="Tenant"></path>
+</g>
+<g transform="translate(3336, 34)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Tenant">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Tenant">
+<a id=".Tenant" xlink:href=""><text x="76.0" y="13.5" stroke="none" text-anchor="middle" data-name="Tenant">Tenant</text></a>
+
+</g>
+</g>
+<g transform="translate(3336, 65)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Tenant">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Tenant">
+<text x="0.0" y="13.5" stroke="none" data-name="Tenant">+TenantID: number</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Tenant">+Forename: String</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Tenant">+Surname: String</text>
+
+</g>
+</g>
+<g transform="translate(3336, 126)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Tenant">
+<g transform="translate(8, 8)" fill="#33322E" data-name="Tenant">
+
+</g>
+</g>
+</g>
+<g data-name="Vehicle">
+<g fill="#eee8d5" stroke="#33322E" data-name="Vehicle">
+<rect x="3544.0" y="8.0" height="153.0" width="309.0" data-name="Vehicle"></rect>
+<path d="M3544.0 39.0 L3853.0 39.0" fill="none" data-name="Vehicle"></path>
+<path d="M3544.0 100.0 L3853.0 100.0" fill="none" data-name="Vehicle"></path>
+</g>
+<g transform="translate(3544, 8)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Vehicle">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Vehicle">
+<a id=".Vehicle" xlink:href=""><text x="146.5" y="13.5" stroke="none" text-anchor="middle" data-name="Vehicle">Vehicle</text></a>
+
+</g>
+</g>
+<g transform="translate(3544, 39)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Vehicle">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Vehicle">
+<text x="0.0" y="13.5" stroke="none" data-name="Vehicle">+VehicleID: number</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Vehicle">+Numberplate: String</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Vehicle">+TenantID: number</text>
+
+</g>
+</g>
+<g transform="translate(3544, 100)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Vehicle">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Vehicle">
+<text x="0.0" y="13.5" stroke="none" data-name="Vehicle">+static getAllData(): Promise&lt;any&gt;</text>
+<text x="0.0" y="28.5" stroke="none" data-name="Vehicle">+static getData(): Promise&lt;any&gt;</text>
+<text x="0.0" y="43.5" stroke="none" data-name="Vehicle">+static isKnown(): Promise&lt;boolean&gt;</text>
+
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

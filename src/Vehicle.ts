@@ -1,11 +1,11 @@
 import dbQuery from "./dbQuery";
 
 abstract class Vehicle {
-	public VehicleID;
-	public Numberplate;
-	public TenantID;
+	public VehicleID:number;
+	public Numberplate:string;
+	public TenantID:number;
 
-	constructor(VehicleID: number, Numberplate: String, TenantID: number) {
+	constructor(VehicleID: number, Numberplate: string, TenantID: number) {
 		this.VehicleID = VehicleID;
 		this.Numberplate = Numberplate;
 		this.TenantID = TenantID;

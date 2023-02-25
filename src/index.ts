@@ -5,24 +5,25 @@ import dbPool from "./dbPool";
 
 class Main {
 	
-	private carpark:any;
+	private carpark!: Carpark;
 	
 	constructor() {
 
-		// first create a Carpark object for each record in DB
-		this.carpark = null;
-
-		this.startEverything();
-
+		this.start();
+		
 	}
-
-	async startEverything() {
+	
+	async start() {
 		await dbPool.createPool();
 		
-		const carpark_record = (await Carpark.getCarparkRecord()).rows[0];
-		console.log(carpark_record);
+		const carpark_records = await Carpark.getCarparkRecords();
+		console.log(carpark_records);
 		
-		this.carpark = new Carpark(carpark_record.carpark_id, carpark_record.total_spaces, await Carpark.getFreeSpaces())
+		// first create a Carpark object for each record in DB (there will never be more than one, but for completeness)
+		for (let i = 0; i < carpark_records.length; i++) {
+			const carpark_record = carpark_records[i];
+			this.carpark = new Carpark(carpark_record.carpark_id, carpark_record.total_spaces, await Carpark.getFreeSpaces())
+		}
 		await Carpark.start()
 		console.log("STARTED");
 	}

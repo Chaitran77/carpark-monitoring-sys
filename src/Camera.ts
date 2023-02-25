@@ -1,12 +1,12 @@
 class Camera {
 
 	public CameraID: number;
-	public IPAddress: String;
-	public EventURL: String;
-	public ResponseFormat: String;
+	public IPAddress: string;
+	public EventURL: string;
+	public ResponseFormat: string;
 	public CarparkID: number; 
 
-	constructor(CameraID: number, IPAddress: String, EventURL: String, ResponseFormat: String, CarparkID: number) {
+	constructor(CameraID: number, IPAddress: string, EventURL: string, ResponseFormat: string, CarparkID: number) {
 		this.CameraID = CameraID;
 		this.IPAddress = IPAddress;
 		this.EventURL = EventURL;

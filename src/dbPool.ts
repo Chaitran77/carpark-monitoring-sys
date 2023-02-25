@@ -1,7 +1,7 @@
 const { Pool } = require("pg");
 
-// Referenced https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js
-// for below and to create sample query snippet in index.ts
+// Referenced https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js and
+// https://node-postgres.com/apis/pool for below and to create sample query snippet in index.ts
 
 abstract class dbPool {
 	public static dbPool: typeof Pool;
