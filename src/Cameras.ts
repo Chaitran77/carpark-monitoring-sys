@@ -41,7 +41,7 @@ class Cameras {
 
     public static async processEvent(request:express.Request, response:express.Response) {
 		const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
-		console.log("CAMERA ID" + this.getCameraIDFromIP(request.ip).toString());
+		console.log("CAMERA ID: " + this.getCameraIDFromIP(request.ip).toString());
 		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
 		
 		if (detectedNumberplate == this.previousNumberplate) {return} // stop executing if same numberplate

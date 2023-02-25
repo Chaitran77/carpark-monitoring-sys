@@ -28,13 +28,13 @@ abstract class Authentication {
     
     private static async checkHash(username:string, hash:string) {
         // if either are undefined or the user doesn't exist, storedHash will be undefined, making the final comparison false
-        const storedHash = (await dbQuery.makeDBQuery(`SELECT password_hash FROM "Account" WHERE username = $1`, [username])).rows[0]["password_hash"];
+        const storedHash = (await dbQuery.makeDBQuery(`SELECT password_hash FROM "Account" WHERE username = $1`, [username]))?.rows[0]?.password_hash;
         return storedHash == hash;
     }
     
     private static async checkUserLevel(username:string, isAdministratorRoute:boolean) {
         // isAdministratorRoute is true when trying to access a route that only administrator-level users should be able to access
-        const isUserAdminLevel = (await dbQuery.makeDBQuery(`SELECT administrator_level FROM "Account" WHERE username = $1`, [username])).rows[0]["administrator_level"];
+        const isUserAdminLevel = (await dbQuery.makeDBQuery(`SELECT administrator_level FROM "Account" WHERE username = $1`, [username]))?.rows[0]?.administrator_level;
         // Admins should be able to access all routes so return true if admin
         if (isUserAdminLevel) {
             return true;
@@ -43,8 +43,9 @@ abstract class Authentication {
         }
     }
 
-    public static async getLoginSalt(username: string) {        
-        return (await dbQuery.makeDBQuery(`SELECT salt FROM "Account" WHERE username = $1;`, [username])).rows[0].salt;
+    public static async getLoginSalt(username: string) {
+        // ?. allows undefined to be returned (which is desired here)
+        return (await dbQuery.makeDBQuery(`SELECT salt FROM "Account" WHERE username = $1;`, [username]))?.rows[0]?.salt;
     }
 }
 

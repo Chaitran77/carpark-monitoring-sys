@@ -14,7 +14,7 @@ abstract class dbQuery  {
 	}
 
 	public static async makeDBQuery(query:string, parameters:Array<string>) {
-		console.log(`QUERY: ${query}`)
+		// console.log(`QUERY: ${query}`)
 		const result = await dbPool.dbPool.query(query, parameters)
 		
 		return result;
