@@ -13,7 +13,9 @@ class Main {
 		
 	}
 	
-	async start() {
+	// load object data from db and create all necessary objects (new Carpark() creates new Camera()s etc..)
+	// can and should only be called from constructor
+	private async start() {
 		await dbPool.createPool();
 		
 		const carpark_records = await Carpark.getCarparkRecords();
