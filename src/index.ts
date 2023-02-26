@@ -18,7 +18,7 @@ class Main {
 	private async start() {
 		await dbPool.createPool();
 		
-		const carpark_records = await Carpark.getCarparkRecords();
+		const carpark_records = (await Carpark.getCarparkRecords()).rows;
 		console.log(carpark_records);
 		
 		// first create a Carpark object for each record in DB (there will never be more than one, but for completeness)
