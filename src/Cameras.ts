@@ -9,7 +9,6 @@ abstract class Cameras {
     
     public static cameras:Camera[] = [];
 
-    public static previousNumberplate:string;
 
     public static async getCameras() {
         return await dbQuery.makeDBQuery(`SELECT camera_id, ip_address, event_url, response_format, carpark_id FROM "Camera";`, []);
@@ -44,41 +43,37 @@ abstract class Cameras {
 		console.log("CAMERA ID: " + this.getCameraIDFromIP(request.ip).toString());
 		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
 		
-		// if (detectedNumberplate == this.previousNumberplate) return // stop executing if same numberplate
-		if ((await Carpark.getFreeSpaces()) <= 0) { console.log("NO FREE SPACES"); return; } // LOG stop executing if no free spaces
-		// TODO: UPDATE Log on no free spaces
-
+		
 		const detectedVehicleImage = request.body["Picture"].NormalPic.Content;
+		const detectedVehicleTimestamp = request.body["Picture"].SnapInfo.SnapTime;
 		console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
 	
 		
-
 		if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
-			// vehicle is exiting, no need to check numberplate
-			console.log("REVERSE");	
+			// vehicle exiting, no need to check numberplate
 			Carpark.openGate()
-			this.previousNumberplate = detectedNumberplate;
-			await Logs.updateLogRecordOnExit(detectedNumberplate, detectedVehicleImage);
+			await Logs.updateLogRecordOnExit(detectedNumberplate, detectedVehicleImage, detectedVehicleTimestamp);
 
 				
 		} else if (request.body["Picture"].SnapInfo.Direction == "Obverse") {
-			// vehicle is entering the carpark
-			console.log("OBVERSE");
-			
-			
-			if (await Vehicle.isKnown(detectedNumberplate)) { // something was returned, duplicate numberplates not allowed in table therefore only 1 record should be returned.
+			// vehicle entering carpark
+			if (await Vehicle.isKnown(detectedNumberplate)) { 
+				// something returned, duplicate numberplates not allowed in table therefore only 1 record will be returned.
 	
 				console.log("KNOWN VEHICLE");
-				Carpark.openGate();
-				await Logs.createRecord(detectedNumberplate, detectedVehicleImage, true, this.getCameraIDFromIP(request.ip));
+				if ((await Carpark.getFreeSpaces()) <= 0) {
+					await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, true, this.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
+				} else {
+					Carpark.openGate();
+					await Logs.createRecord(detectedNumberplate, detectedVehicleImage, true, this.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
+				}
 
-			} else { // nothing returned, unknown vehicle. PROTOCOL: Keep gate shut and notify reception
+			} else {
+				// nothing returned, unknown vehicle: Keep gate shut and notify reception (by setting known_vehicle to false), independent of free spaces
 				console.log("UNKNOWN VEHICLE");
-                await Logs.createRecord(detectedNumberplate, detectedVehicleImage, false, this.getCameraIDFromIP(request.ip));
+                await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, false, this.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 			}
 
-
-			this.previousNumberplate = detectedNumberplate;
 		} else {
 			// camera reported "Unknow" as plate direction
 			// need to decipher from existing Log data

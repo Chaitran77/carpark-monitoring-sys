@@ -25,17 +25,30 @@ abstract class Logs {
         Logs.logs.push(log);
     }
 
-    public static async createRecord(numberplate:string, image:string, knownVehicle: boolean, camera_id: number) {
+    public static async createRecord(numberplate:string, image:string, knownVehicle: boolean, camera_id: number, timestamp:string) {
 		// TODO: need to match vehicle_id
-		await dbQuery.makeDBQuery(`INSERT INTO "Log" (numberplate, entry_timestamp, entry_image_base64, known_vehicle, camera_id, acknowleged) VALUES ($1, to_timestamp($2), $3, $4, $5, false);`, [numberplate, (Date.now()/1000).toString(), image, knownVehicle.toString(), camera_id.toString()]);
+        const secondsString = this.timestampStringToSeconds(timestamp).toString();
+		await dbQuery.makeDBQuery(`INSERT INTO "Log" (numberplate, entry_timestamp, entry_image_base64, known_vehicle, camera_id, acknowleged) VALUES ($1, to_timestamp($2), $3, $4, $5, false);`, [numberplate, secondsString, image, knownVehicle.toString(), camera_id.toString()]);
+	}
+
+    public static async createRecordNoEntry(numberplate:string, image:string, knownVehicle: boolean, camera_id: number, timestamp:string) {
+		// TODO: need to match vehicle_id
+        // for when a vehicle is detected but doesn't enter (i.e. no free spaces available or unauthorised). Set entry and exit timestamps to be equal.
+        const secondsString = this.timestampStringToSeconds(timestamp).toString();
+		await dbQuery.makeDBQuery(`INSERT INTO "Log" (numberplate, entry_timestamp, entry_image_base64, exit_timestamp, known_vehicle, camera_id, acknowleged) VALUES ($1, to_timestamp($2), $3, $4, $5, $6, false);`,
+                [numberplate, secondsString, image, secondsString, knownVehicle.toString(), camera_id.toString()]);
 	}
 
 
-	public static async updateLogRecordOnExit(numberplate:string, image:string) {
-		console.log(`UPDATE "Log" SET exit_timestamp = to_timestamp(${Date.now()/1000}), exit_image_base64 = '<image data here>' WHERE log_id = (SELECT MAX(log_id) FROM "Log" WHERE "Log".numberplate = '${numberplate}');`);		
-		await dbQuery.makeDBQuery(`UPDATE "Log" SET exit_timestamp = to_timestamp($1), exit_image_base64 = $2 WHERE log_id = (SELECT MAX(log_id) FROM "Log" WHERE "Log".numberplate = $3);`, [(Date.now()/1000).toString(), image, numberplate]);
+	public static async updateLogRecordOnExit(numberplate:string, image:string, timestamp:string) {
+		console.log(`UPDATE "Log" SET exit_timestamp = to_timestamp(${this.timestampStringToSeconds(timestamp)}), exit_image_base64 = '<image data here>' WHERE log_id = (SELECT MAX(log_id) FROM "Log" WHERE "Log".numberplate = '${numberplate}');`);		
+		await dbQuery.makeDBQuery(`UPDATE "Log" SET exit_timestamp = to_timestamp($1), exit_image_base64 = $2 WHERE log_id = (SELECT MAX(log_id) FROM "Log" WHERE "Log".numberplate = $3);`, [this.timestampStringToSeconds(timestamp).toString(), image, numberplate]);
 	}
 
+    private static timestampStringToSeconds(timestampString:string) {
+        // camera gives SnapTime in format "YYYY-MM-DD HH:mm:ss" e.g. "2023-03-03 18:15:04". Convert to millis since unix epoch, divide by 1000 to get seconds.
+        return new Date(timestampString).getTime()/1000;
+    }
 
 }
 
