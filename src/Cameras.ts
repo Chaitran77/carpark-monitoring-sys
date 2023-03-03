@@ -5,7 +5,7 @@ import dbQuery from "./dbQuery";
 import Logs from "./Logs";
 import Vehicle from "./Vehicle";
 
-class Cameras {
+abstract class Cameras {
     
     public static cameras:Camera[] = [];
 
@@ -44,11 +44,13 @@ class Cameras {
 		console.log("CAMERA ID: " + this.getCameraIDFromIP(request.ip).toString());
 		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
 		
-		if (detectedNumberplate == this.previousNumberplate) {return} // stop executing if same numberplate
-		if ((await Carpark.getFreeSpaces()) <= 0) { console.log("NO FREE SPACES"); return; } // stop executing if no free spaces
+		// if (detectedNumberplate == this.previousNumberplate) return // stop executing if same numberplate
+		if ((await Carpark.getFreeSpaces()) <= 0) { console.log("NO FREE SPACES"); return; } // LOG stop executing if no free spaces
+		// TODO: UPDATE Log on no free spaces
 
 		const detectedVehicleImage = request.body["Picture"].NormalPic.Content;
 		console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
+	
 		
 
 		if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
@@ -77,6 +79,9 @@ class Cameras {
 
 
 			this.previousNumberplate = detectedNumberplate;
+		} else {
+			// camera reported "Unknow" as plate direction
+			// need to decipher from existing Log data
 		}
 
 	}

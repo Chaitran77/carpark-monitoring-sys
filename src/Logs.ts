@@ -27,7 +27,7 @@ abstract class Logs {
 
     public static async createRecord(numberplate:string, image:string, knownVehicle: boolean, camera_id: number) {
 		// TODO: need to match vehicle_id
-		await dbQuery.makeDBQuery(`INSERT INTO "Log" (numberplate, entry_timestamp, entry_image_base64, known_vehicle, camera_id) VALUES ($1, to_timestamp($2), $3, $4, $5);`, [numberplate, (Date.now()/1000).toString(), image, knownVehicle.toString(), camera_id.toString()]);
+		await dbQuery.makeDBQuery(`INSERT INTO "Log" (numberplate, entry_timestamp, entry_image_base64, known_vehicle, camera_id, acknowleged) VALUES ($1, to_timestamp($2), $3, $4, $5, false);`, [numberplate, (Date.now()/1000).toString(), image, knownVehicle.toString(), camera_id.toString()]);
 	}
 
 

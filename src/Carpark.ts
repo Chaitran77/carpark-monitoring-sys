@@ -6,11 +6,11 @@ import dbQuery from "./dbQuery";
 import Cameras from "./Cameras";
 import dbPool from "./dbPool";
 import Logs from "./Logs";
+import Tenant from "./Tenant";
 
 
 class Carpark {
 
-    private static serverListenPort = 8000;
 
     public static server: express.Application;
     public static httpServer: Server;
@@ -18,6 +18,8 @@ class Carpark {
     public static CarparkID:number;
     public static TotalSpaces:number;
     public static FreeSpaces:number;
+
+	public static tenants:Tenant[];
 
 
     constructor(CarparkID: number, TotalSpaces: number, FreeSpaces: number) {
@@ -35,13 +37,18 @@ class Carpark {
 
         Carpark.server = express();
 		Carpark.loadRoutes();
-		Carpark.httpServer = Carpark.server.listen(this.serverListenPort, "0.0.0.0", () => { console.log("server listening") });
+
+		// get the server's listen port from .env file. Could not be defined in file (returns undefined), so automatically assign 8000 in this case as the default.
+		const serverListenPort:number = (process.env.SERVERLISTENPORT !== undefined)?parseInt(process.env.SERVERLISTENPORT):(8000);
+
+		// start listening and store HTTPServer instance for graceful shutdown
+		Carpark.httpServer = Carpark.server.listen(serverListenPort, "0.0.0.0", () => { console.log("server listening") });
     }
 
-	// although "freeSpaces" is what is needed in the client frontend, and 
-    public static async getFreeSpaces() {
+	// count number of Log records without exit timestamps (still in carpark), get total spaces in carpark and return difference between them. 
+    public static async getFreeSpaces() { // not getUsedSpaces because this can be used directly in Cameras.processEvent(), 1 extra call here.
 		const totalSpaces = (await dbQuery.makeDBQuery(`SELECT total_spaces FROM "Carpark";`, [])).rows[0].total_spaces;
-		const usedSpaces = (await dbQuery.makeDBQuery(`SELECT COUNT(*) AS used_spaces FROM "Log" WHERE exit_timestamp is NULL;`, [])).rows[0].used_spaces; // count Log records without an exit_timestamp
+		const usedSpaces = (await dbQuery.makeDBQuery(`SELECT COUNT(*) AS used_spaces FROM "Log" WHERE exit_timestamp IS NULL;`, [])).rows[0].used_spaces; // count Log records without an exit_timestamp
         return totalSpaces - usedSpaces;
 	}
 
@@ -50,7 +57,7 @@ class Carpark {
         return (await dbQuery.makeDBQuery(`SELECT carpark_id, total_spaces, used_spaces FROM "Carpark";`, []));
     }
 
-    // previous implementation used to update the counter in the database. Counter is now held in memory and derived from data in base
+    // previous implementation used to update the counter in the database. Free spaces are now derived from data in base on demand.
     /*
 	private async editCarparkSpaceCounter(increment:1|-1, cameraAddress:string) {
 	 	console.log(`UPDATE "Carpark" SET used_spaces = used_spaces + ${increment.toString()} FROM "Camera" WHERE "Carpark".carpark_id = "Camera".carpark_id AND "Camera".ip_address = '${cameraAddress}';`);
@@ -82,13 +89,18 @@ class Carpark {
 		
 		Carpark.server.use(express.json( { limit: "2mb" } ));
 		
-		// this will correspond to "/NotificationInfo/TollgateInfo" with Dahua cameras (true for this project)
+		// this will resolve to "/NotificationInfo/TollgateInfo" with Dahua cameras (true for this project)
 		Carpark.server.post(Cameras.cameras[0].EventURL, async (req, res) => {
+			console.log(req.body);
+			console.log(new Date().toString());
+			res.json({"Result":true});
 			try {				
 				await Cameras.processEvent(req, res);
 				this.replySuccess(res);
 			} catch (error:any) {
-				this.replyQueryError(error, res);
+				//this.replyQueryError(error, res);
+				console.error(error);
+				res.end() // for now
 			}
 		})
 		
@@ -131,12 +143,15 @@ class Carpark {
 
 		Carpark.server.get("/carparkStatistics", async (req:express.Request, res:express.Response) => {
 			res.status(200);
-			
-			res.json({
-				"FreeSpaces": await this.getFreeSpaces(), 
-				"TotalSpaces": this.TotalSpaces
-			})
-			res.end();
+			try {
+				res.json({
+					"FreeSpaces": await this.getFreeSpaces(), 
+					"TotalSpaces": this.TotalSpaces
+				})
+				res.end();
+			} catch (error:any) {
+				this.replyQueryError(error, res);
+			}
 		})
 
 		Carpark.server.get("/logData/:recordCount", authBarrierBaseRoute, async (req:express.Request, res:express.Response) => {
@@ -158,6 +173,7 @@ class Carpark {
 		})
 
 		Carpark.server.get("/entryCount", async (req: express.Request, res: express.Response) => {
+			// TODO: JOIN with Tenant and Vehicle for more information.
 			const data = (await dbQuery.makeDBQuery(`SELECT numberplate, COUNT(*), MAX(entry_timestamp) FROM "Log" GROUP BY numberplate;`, [])).rows;
 
 		})

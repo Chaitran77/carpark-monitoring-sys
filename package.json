@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node --inspect=0.0.0.0:9229 dist/index.js",
+    "start": "forever start -w -c 'node --inspect=0.0.0.0:9229' dist/index.js",
+    "stop": "forever stop 0",
     "test": "node --inspect=0.0.0.0:9229 dist/index.js"
   },
   "repository": {

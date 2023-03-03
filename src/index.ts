@@ -1,6 +1,7 @@
 import Carpark from "./Carpark";
 import dbPool from "./dbPool";
 
+require("dotenv").config();
 
 
 class Main {
