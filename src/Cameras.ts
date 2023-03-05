@@ -7,19 +7,14 @@ import Vehicle from "./Vehicle";
 
 abstract class Cameras {
     
-    public static cameras:Camera[] = [];
-
-
-    public static async getCameras() {
-        return await dbQuery.makeDBQuery(`SELECT camera_id, ip_address, event_url, response_format, carpark_id FROM "Camera";`, []);
-    }
+	public static cameras: Camera[] = [];
 
     public static async loadCameras() {
-        const cameraRecords = (await Cameras.getCameras()).rows;
+        const cameraRecords = (await dbQuery.makeDBQuery(`SELECT camera_id, ip_address, event_url, response_format, carpark_id FROM "Camera";`, [])).rows;
 
         for (let i = 0; i < cameraRecords.length; i++) {
             const rec = cameraRecords[i];
-            this.addCamera(new Camera(rec.camera_id, rec.ip_address, rec.event_url, rec.response_format, rec.carpark_id));
+            Cameras.addCamera(new Camera(rec.camera_id, rec.ip_address, rec.event_url, rec.response_format, rec.carpark_id));
         }
     }
 
@@ -29,8 +24,8 @@ abstract class Cameras {
 
     private static getCameraIDFromIP(ip_address:string):number {        
         
-        for (let i = 0; i < this.cameras.length; i++) {
-            if (this.cameras[i].IPAddress == ip_address) return this.cameras[i].CameraID;
+        for (let i = 0; i < Cameras.cameras.length; i++) {
+            if (Cameras.cameras[i].IPAddress == ip_address) return Cameras.cameras[i].CameraID;
         }
 
         return -1;
@@ -40,7 +35,7 @@ abstract class Cameras {
 
     public static async processEvent(request:express.Request, response:express.Response) {
 		const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
-		console.log("CAMERA ID: " + this.getCameraIDFromIP(request.ip).toString());
+		console.log("CAMERA ID: " + Cameras.getCameraIDFromIP(request.ip).toString());
 		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
 		
 		
@@ -62,16 +57,16 @@ abstract class Cameras {
 	
 				console.log("KNOWN VEHICLE");
 				if ((await Carpark.getFreeSpaces()) <= 0) {
-					await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, true, this.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
+					await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, true, Cameras.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 				} else {
 					Carpark.openGate();
-					await Logs.createRecord(detectedNumberplate, detectedVehicleImage, true, this.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
+					await Logs.createRecord(detectedNumberplate, detectedVehicleImage, true, Cameras.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 				}
 
 			} else {
 				// nothing returned, unknown vehicle: Keep gate shut and notify reception (by setting known_vehicle to false), independent of free spaces
 				console.log("UNKNOWN VEHICLE");
-                await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, false, this.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
+                await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, false, Cameras.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 			}
 
 		} else {
@@ -80,6 +75,7 @@ abstract class Cameras {
 		}
 
 	}
+
 
 }
 

@@ -15,21 +15,19 @@ class Carpark {
     public static server: express.Application;
     public static httpServer: Server;
 
-    public static CarparkID:number;
-    public static TotalSpaces:number;
-    public static FreeSpaces:number;
-
+	private static CarparkID: number;
+	private static TotalSpaces: number;
+    
 	public static tenants:Tenant[];
 
 
-    constructor(CarparkID: number, TotalSpaces: number, FreeSpaces: number) {
+    constructor(CarparkID: number, TotalSpaces: number) {
 
         Carpark.CarparkID = CarparkID;
         Carpark.TotalSpaces = TotalSpaces;
-
-        Carpark.FreeSpaces = FreeSpaces;
         // the start method must be run at a higher level
     }
+	
 
     public static async start() {
         // spin up cameras - must be done before server starts (below)
@@ -100,6 +98,7 @@ class Carpark {
 			} catch (error:any) {
 				//this.replyQueryError(error, res);
 				console.error(error);
+				res.status(200);
 				res.end() // for now
 			}
 		})
@@ -189,11 +188,12 @@ class Carpark {
 
     public static async shutdown() {
 		this.httpServer.close();
-		await dbPool.dbPool.end;
+		await dbPool.dbPool.end();
 		process.disconnect();
 		process.exit(0);
 	}
     
+
 }
 
 export default Carpark;

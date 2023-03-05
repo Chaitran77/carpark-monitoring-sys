@@ -25,7 +25,7 @@ class Main {
 		// first create a Carpark object for each record in DB (there will never be more than one, but for completeness)
 		for (let i = 0; i < carpark_records.length; i++) {
 			const carpark_record = carpark_records[i];
-			this.carpark = new Carpark(carpark_record.carpark_id, carpark_record.total_spaces, await Carpark.getFreeSpaces())
+			this.carpark = new Carpark(carpark_record.carpark_id, carpark_record.total_spaces);
 		}
 		await Carpark.start()
 		console.log("STARTED");

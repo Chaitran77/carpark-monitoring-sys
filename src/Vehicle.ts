@@ -20,7 +20,7 @@ abstract class Vehicle {
 	}
 
 	public static async isKnown(numberplate:string) {
-		if ((await this.getData(numberplate)).rows.length > 0) return true;
+		if ((await Vehicle.getData(numberplate)).rows.length > 0) return true;
 		return false;
 	}
 }
