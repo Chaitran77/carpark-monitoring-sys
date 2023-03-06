@@ -27,7 +27,7 @@ class Carpark {
         Carpark.TotalSpaces = TotalSpaces;
         // the start method must be run at a higher level
     }
-	
+
 
     public static async start() {
         // spin up cameras - must be done before server starts (below)
@@ -41,6 +41,11 @@ class Carpark {
 
 		// start listening and store HTTPServer instance for graceful shutdown
 		Carpark.httpServer = Carpark.server.listen(serverListenPort, "0.0.0.0", () => { console.log("server listening") });
+
+		// if any request takes longer than 
+		// Carpark.httpServer.on('connection', function(socket) {
+		// 	socket.setTimeout(10000, () => {console.log("Request timed out");});
+		// });
     }
 
 	// count number of Log records without exit timestamps (still in carpark), get total spaces in carpark and return difference between them. 
@@ -52,7 +57,7 @@ class Carpark {
 
 
     public static async getCarparkRecords() {
-        return (await dbQuery.makeDBQuery(`SELECT carpark_id, total_spaces, used_spaces FROM "Carpark";`, []));
+        return (await dbQuery.makeDBQuery(`SELECT carpark_id, total_spaces FROM "Carpark";`, []));
     }
 
     // previous implementation used to update the counter in the database. Free spaces are now derived from data in base on demand.
@@ -86,6 +91,7 @@ class Carpark {
 	private static loadRoutes(): void {
 		
 		Carpark.server.use(express.json( { limit: "2mb" } ));
+
 		
 		// this will resolve to "/NotificationInfo/TollgateInfo" with Dahua cameras (true for this project)
 		Carpark.server.post(Cameras.cameras[0].EventURL, async (req, res) => {
@@ -104,10 +110,7 @@ class Carpark {
 		})
 		
 		Carpark.server.post("/NotificationInfo/KeepAlive", (req: express.Request, res: express.Response) => { 
-			const now:Date = new Date();
-			res.send({"Message": "Success", "Result": true, "RspTime": `${now.getFullYear()}-0${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`})
-			res.status(200);
-			res.end();
+			Carpark.replySuccess(res);
 		})
 		
 		
