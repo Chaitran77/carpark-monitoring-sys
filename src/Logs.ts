@@ -25,7 +25,7 @@ abstract class Logs {
 
             const rec = (await dbQuery.makeDBQuery(`SELECT log_id, camera_id, numberplate, entry_timestamp, exit_timestamp, vehicle_id, entry_image_base64, exit_image_base64, acknowleged, known_vehicle FROM "Log" WHERE log_id = $1;`, [i.toString()])).rows[0];
             
-            if (rec == undefined) continue;
+            if (rec == undefined) {count+=1; continue};
             Logs.addLog(new Log(rec.log_id, rec.camera_id, rec.vehicle_id, rec.numberplate, rec.entry_timestamp, rec.exit_timestamp, rec.entry_image_base64, rec.exit_image_base64, rec.acknowleged, rec.known_vehicle));
         }
 

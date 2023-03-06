@@ -90,7 +90,7 @@ class Carpark {
 
 	private static loadRoutes(): void {
 		
-		Carpark.server.use(express.json( { limit: "2mb" } ));
+		Carpark.server.use(express.json( { limit: "10mb" } ));
 
 		
 		// this will resolve to "/NotificationInfo/TollgateInfo" with Dahua cameras (true for this project)
