@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "start": "forever start dist/index.js -c \"node --inspect=0.0.0.0:9229\"",
     "stop": "forever stop 0",
-    "test": "node --inspect=0.0.0.0:9229 dist/index.js"
+    "test": "node --inspect=0.0.0.0:9229 --max-old-space-size=1036 dist/index.js"
   },
   "repository": {
     "type": "git",
