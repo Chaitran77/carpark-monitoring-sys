@@ -69,8 +69,8 @@ class Carpark {
 	}
 	*/
 
-    public static openGate() {
-
+    public static openGate(req: express.Request, res: express.Response) {
+		
     }
 
 
@@ -137,9 +137,22 @@ class Carpark {
 			res.end();
 		})
 
-		Carpark.server.get("/tenantDataFromVehicleID/:VehicleID", authBarrierBaseRoute, async (req:express.Request, res:express.Response) => {
+		Carpark.server.get("/tenantDataFromLogID/:LogID", authBarrierBaseRoute, async (req:express.Request, res:express.Response) => {
 			// returns tenant records joined with vehicle records
-			// TODO: tenantDataFromVehicleID
+			res.status(200);
+			const tenantData = await Tenant.getTenantDataFromLogID(parseInt(req.params.LogID));
+			console.log(tenantData);
+			
+			try {
+				res.json({ // undefined will be picked up on client and interpreted as vehicle not belonging to tenant if no records returned
+					"TenantID": tenantData[0]?.tenant_id,
+					"Forename": tenantData[0]?.forename, 
+					"Surname": tenantData[0]?.surname
+				})
+				res.end();
+			} catch (error:any) {
+				this.replyQueryError(error, res);
+			}
 
 		});
 
@@ -147,7 +160,7 @@ class Carpark {
 			res.status(200);
 			try {
 				res.json({
-					"FreeSpaces": await this.getFreeSpaces(), 
+					"FreeSpaces": await this.getFreeSpaces(), // will always return a record
 					"TotalSpaces": this.TotalSpaces
 				})
 				res.end();
@@ -184,7 +197,7 @@ class Carpark {
 
 		})
 
-		Carpark.server.post("/openGate", authBarrierAdminRoute, async (req: express.Request, res: express.Response) => {this.openGate});
+		Carpark.server.post("/openGate", authBarrierBaseRoute, async (req: express.Request, res: express.Response) => {this.openGate(req, res)});
 	}
 
 

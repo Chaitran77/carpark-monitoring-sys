@@ -46,7 +46,7 @@ abstract class Cameras {
 		
 		if (request.body["Picture"].SnapInfo.Direction == "Reverse") {
 			// vehicle exiting, no need to check numberplate
-			Carpark.openGate()
+			Carpark.openGate(request, response)
 			await Logs.updateLogRecordOnExit(detectedNumberplate, detectedVehicleImage, detectedVehicleTimestamp);
 
 				
@@ -59,7 +59,7 @@ abstract class Cameras {
 				if ((await Carpark.getFreeSpaces()) <= 0) {
 					await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, true, Cameras.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 				} else {
-					Carpark.openGate();
+					Carpark.openGate(request, response);
 					await Logs.createRecord(detectedNumberplate, detectedVehicleImage, true, Cameras.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 				}
 

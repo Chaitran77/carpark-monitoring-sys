@@ -37,11 +37,14 @@ class Main {
 
 const app:Main = new Main();
 
-process.on("SIGINT", () => {
-	console.log("Exiting...")
+process.on("SIGTERM", () => {
+	console.log("Exiting...");
 	Carpark.shutdown();
 })
-
+process.on("SIGINT", () => {
+	console.log("Exiting... int");
+	Carpark.shutdown();
+})
 // https://northflank.com/guides/connecting-to-a-postgresql-database-using-node-js
 // https://medium.com/bb-tutorials-and-thoughts/how-to-build-nodejs-rest-api-with-express-and-postgresql-typescript-version-121b5a11c9a6
 // https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript
