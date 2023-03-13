@@ -35,12 +35,11 @@ abstract class Cameras {
 
     public static async processEvent(request:express.Request, response:express.Response) {
 		const detectedNumberplate = request.body["Picture"].Plate.PlateNumber;
-		console.log("CAMERA ID: " + Cameras.getCameraIDFromIP(request.ip).toString());
-		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
-		
-		
 		const detectedVehicleImage = request.body["Picture"].NormalPic.Content;
 		const detectedVehicleTimestamp = request.body["Picture"].SnapInfo.SnapTime;
+		
+		console.log("CAMERA ID: " + Cameras.getCameraIDFromIP(request.ip).toString());
+		console.log("FREE SPACES: " + (await Carpark.getFreeSpaces()).toString());
 		console.log(detectedNumberplate, request.body["Picture"].SnapInfo.Direction);
 	
 		
@@ -69,9 +68,6 @@ abstract class Cameras {
                 await Logs.createRecordNoEntry(detectedNumberplate, detectedVehicleImage, false, Cameras.getCameraIDFromIP(request.ip), detectedVehicleTimestamp);
 			}
 
-		} else {
-			// camera reported "Unknow" as plate direction
-			// need to decipher from existing Log data
 		}
 
 	}

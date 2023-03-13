@@ -35,6 +35,18 @@ abstract class Logs {
         Logs.logs.push(log);
     }
 
+    public static async getLogByID(log_id:number) { // throws error if none returned
+        return (await dbQuery.makeDBQuery(`SELECT log_id, numberplate, entry_timestamp, exit_timestamp, known_vehicle FROM "Log" WHERE log_id = $1;`, [log_id.toString()])).rows[0];
+    }
+
+    public static async getLatestLogByNumberplate(numberplate:string) { // throws error if none returned
+        return (await dbQuery.makeDBQuery(`SELECT log_id, numberplate, entry_timestamp, exit_timestamp FROM "Log" WHERE numberplate = $1 ORDER BY log_id DESC LIMIT 1;`, [numberplate])).rows[0];
+    }
+
+    public static async setExitTimestampNullForLogID(log_id:number) {
+        await dbQuery.makeDBQuery(`UPDATE "Log" SET exit_timestamp = NULL WHERE log_id = $1;`, [log_id.toString()]);
+    }
+
     public static async createRecord(numberplate:string, image:string, knownVehicle: boolean, camera_id: number, timestamp:string) {
 		// TODO: need to match vehicle_id
         const secondsString = Logs.timestampStringToSeconds(timestamp).toString();

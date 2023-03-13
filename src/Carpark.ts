@@ -69,8 +69,24 @@ class Carpark {
 	}
 	*/
 
-    public static openGate(req: express.Request, res: express.Response) {
+	public static openGate(req: express.Request, res: express.Response) {
 		
+	}
+
+    private static async openGateFromClient(req: express.Request, res: express.Response) {
+		// can only open gate for unknown vehicle that has not entered (entry_tsp==exit_tsp)
+		const LogID:number = parseInt(req.params.LogID);
+		const logToModify = await Logs.getLogByID(LogID);
+		
+		if ((logToModify.entry_timestamp == logToModify.exit_timestamp) && !logToModify.known_vehicle) {
+			Logs.setExitTimestampNullForLogID(LogID);
+			Carpark.replySuccess(res);
+		} else {
+			res.status(403)
+				.send("Cannot open gate for a vehicle that has already entered or is authorised")
+				.end()
+		}
+
     }
 
 
@@ -179,25 +195,13 @@ class Carpark {
 			res.end()
 		});
 
-		Carpark.server.post("/insert/:table", authBarrierBaseRoute, async (req: express.Request, res: express.Response) => {
-			// for tables other than Log from receptionUI, not for numberplates.
-			console.log(dbQuery.generateInsertQuery(req.params.table, req.body));
-			res.status(201); // 201 Created HTTP status code
-			res.send("Insert request completed successfully");
-			res.end()
-		})
-
 		Carpark.server.get("/entryCount", async (req: express.Request, res: express.Response) => {
 			// TODO: JOIN with Tenant and Vehicle for more information.
 			const data = (await dbQuery.makeDBQuery(`SELECT numberplate, COUNT(*), MAX(entry_timestamp) FROM "Log" GROUP BY numberplate;`, [])).rows;
 
 		})
 
-		Carpark.server.post("/update/:table", async (req: express.Request, res: express.Response) => {
-
-		})
-
-		Carpark.server.post("/openGate", authBarrierBaseRoute, async (req: express.Request, res: express.Response) => {this.openGate(req, res)});
+		Carpark.server.post("/openGate/:LogID", authBarrierBaseRoute, async (req: express.Request, res: express.Response) => {this.openGateFromClient(req, res)});
 	}
 
 
