@@ -70,7 +70,7 @@ class Carpark {
 	*/
 
 	public static openGate(req: express.Request, res: express.Response) {
-		
+		// code to send request to activate camera relay
 	}
 
     private static async openGateFromClient(req: express.Request, res: express.Response) {
@@ -78,7 +78,8 @@ class Carpark {
 		const LogID:number = parseInt(req.params.LogID);
 		const logToModify = await Logs.getLogByID(LogID);
 		
-		if ((logToModify.entry_timestamp == logToModify.exit_timestamp) && !logToModify.known_vehicle) {
+		if ((logToModify.entry_timestamp.toString() == logToModify.exit_timestamp.toString()) && !logToModify.known_vehicle) {
+			
 			Logs.setExitTimestampNullForLogID(LogID);
 			Carpark.replySuccess(res);
 		} else {
@@ -195,7 +196,7 @@ class Carpark {
 			res.end()
 		});
 
-		Carpark.server.get("/entryCount", async (req: express.Request, res: express.Response) => {
+		Carpark.server.get("/entryCount/:TenantID", async (req: express.Request, res: express.Response) => {
 			// TODO: JOIN with Tenant and Vehicle for more information.
 			const data = (await dbQuery.makeDBQuery(`SELECT numberplate, COUNT(*), MAX(entry_timestamp) FROM "Log" GROUP BY numberplate;`, [])).rows;
 
