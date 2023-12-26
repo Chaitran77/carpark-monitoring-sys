@@ -1,3 +1,4 @@
+const log = require('why-is-node-running');
 import Carpark from "./Carpark";
 import dbPool from "./dbPool";
 
